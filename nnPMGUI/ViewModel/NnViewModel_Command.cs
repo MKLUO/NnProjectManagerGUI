@@ -165,14 +165,19 @@ namespace NnManagerGUI.ViewModel
         public ICommand EnqueueTask {
             get {
                 return new RelayCommand(
-                    EnqueueTaskExecute, 
+                    EnqueueTaskExecute,
+
                     () => IsProjectLoaded() && (SelectedTask != null));
+                                        //() => IsProjectLoaded() && (SelectedTasks != null));
             }
         }
 
         void EnqueueTaskExecute()
         {
-            project.EnqueueTask(SelectedTask.Item1);
+            //foreach (var task in SelectedTasks)
+            //    project.EnqueueTask(task.Name);
+            project.EnqueueTask(SelectedTask.Name);
+
             OnProjectPropertyChange();
         }
 
@@ -180,19 +185,39 @@ namespace NnManagerGUI.ViewModel
             get {
                 return new RelayCommand(
                     LoadParamFromTaskExecute,
-                    () => IsProjectLoaded() && (SelectedTask != null));
+                    () => {
+
+                        //if (SelectedTasks == null)
+                        if (SelectedTask == null)
+
+                            return false;
+                        else
+
+                            //return (IsProjectLoaded() && (SelectedTasks.Count == 1));
+                            return IsProjectLoaded();
+                    }
+                );
             }
         }
 
         void LoadParamFromTaskExecute()
         {
-            SelectedTemplateId = 
+            //SelectedTemplateId = 
+            //    (string)
+            //    project.GetTaskInfo(selectedTasks[0].Name)["templateId"];
+
+            //SetNewParamCollection(
+            //    (Dictionary<string, (string, string)>)
+            //    project.GetTaskInfo(selectedTasks[0].Name)["param"]
+            //);
+
+            SelectedTemplateId =
                 (string)
-                project.GetTaskInfo(selectedTask.Item1)["templateId"];
+                project.GetTaskInfo(selectedTask.Name)["templateId"];
 
             SetNewParamCollection(
                 (Dictionary<string, (string, string)>)
-                project.GetTaskInfo(selectedTask.Item1)["param"]
+                project.GetTaskInfo(selectedTask.Name)["param"]
             );
 
             OnProjectPropertyChange();

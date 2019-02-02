@@ -137,6 +137,11 @@ namespace NnManagerGUI.ViewModel
                 get;
                 set;
             }
+
+            public override string ToString()
+            {
+                return "[" + Status + "] " + Name;
+            }
         }
 
         public List<Task> TaskCollection
@@ -161,13 +166,27 @@ namespace NnManagerGUI.ViewModel
             }
         }
 
-        List<Task> selectedTasks;
-        public List<Task> SelectedTasks
-        {
-            get { return selectedTasks; }
+        //List<Task> selectedTasks;
+        //public List<Task> SelectedTasks
+        //{
+        //    get { return selectedTasks; }
+        //    set {
+        //        if (value != selectedTasks) {
+        //            selectedTasks = value;
+
+        //            //SetNewParamCollection(
+        //            //    project.GetTaskParam(selectedTask.Item1)
+        //            //);
+        //        }
+        //    }
+        //}
+
+        Task selectedTask;
+        public Task SelectedTask {
+            get { return selectedTask; }
             set {
-                if (value != selectedTasks) {
-                    selectedTasks = value;
+                if (value != selectedTask) {
+                    selectedTask = value;
 
                     //SetNewParamCollection(
                     //    project.GetTaskParam(selectedTask.Item1)

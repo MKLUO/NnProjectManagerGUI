@@ -86,11 +86,24 @@
 				  Binding="{Binding DefaultValue}"/>
 			</DataGrid.Columns>
 		</DataGrid>
-		<ListBox Margin="251,144,0,0"
+		<DataGrid Margin="251,144,0,0"
                  Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="254"
-		         SelectionMode="Multiple"
+		          AutoGenerateColumns="False"
                  ItemsSource="{Binding TaskCollection, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedTasks, Mode=OneWayToSource}" />
+                 SelectedItem="{Binding SelectedTask, Mode=OneWayToSource}">
+		  <DataGrid.Columns>
+				<DataGridTextColumn 
+		        Width="0.3*"
+		        Header="Status" 
+		        IsReadOnly="True"  
+		        Binding="{Binding Status}"/>
+			<DataGridTextColumn 
+		        Width="*"
+		        Header="Name" 
+		        IsReadOnly="True"  
+		        Binding="{Binding Name}"/>
+		    </DataGrid.Columns>
+		</DataGrid>
 		<Button Content="Start" 
                 HorizontalAlignment="Left" 
                 Margin="599,485,0,0" 
