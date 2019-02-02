@@ -1,7 +1,7 @@
-﻿<Application x:Class="nnPMGUI.App"
+﻿<Application x:Class="NnManagerGUI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:nnPMGUI"
+             xmlns:local="clr-namespace:NnManagerGUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

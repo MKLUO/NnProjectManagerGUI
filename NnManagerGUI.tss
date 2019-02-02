@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ArrayOfArrayOfArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ArrayOfArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\ViewModel\NnViewModel.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\ViewModel\NnViewModel_ViewData.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\ViewModel\NnViewModel_Command.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\MainWindow.xaml.cs</string>
+    </ArrayOfString>
+  </ArrayOfArrayOfString>
+  <ArrayOfArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\MainWindow.xaml</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\View\PrototypeView.xaml</string>
+      <string>E:\research_materials\codes\nnPM_GUI\nnPMGUI\nnPMGUI\View\PrototypeView.xaml.cs</string>
+    </ArrayOfString>
+  </ArrayOfArrayOfString>
+</ArrayOfArrayOfArrayOfString>

@@ -1,12 +1,13 @@
-﻿<Window x:Class="nnPMGUI.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:nnPMGUI"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+﻿<Window
+  x:Class="NnManagerGUI.MainWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="clr-namespace:NnManagerGUI"
+  xmlns:vw="clr-namespace:NnManagerGUI.View"
+  xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
+  mc:Ignorable="d"
+  Title="NN Manager" Height="724" Width="868">
+	<vw:PrototypeView/>
 </Window>
