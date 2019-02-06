@@ -9,46 +9,46 @@
              xmlns:vw="clr-namespace:NnManagerGUI.View"
              xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
              mc:Ignorable="d" Height="547" Width="790">
-	<UserControl.DataContext>
-		<vm:ProjectViewModel/>
-	</UserControl.DataContext>
-	<Grid Background="White">
-		<Button Content="New Project" 
+    <UserControl.DataContext>
+        <vm:ProjectViewModel/>
+    </UserControl.DataContext>
+    <Grid Background="White">
+        <Button Content="New Project" 
                 HorizontalAlignment="Left" 
                 Margin="13,10,0,0" 
                 VerticalAlignment="Top" 
                 Width="93"
                 Height="40"
                 Command="{Binding NewProject}"/>
-		<Button Content="Add Template"
+        <Button Content="Add Template"
                 HorizontalAlignment="Left" 
                 Margin="13,79,0,0" 
                 VerticalAlignment="Top" 
                 Width="133"
                 Height="55"
                 Command="{Binding AddTemplate}"/>
-		<Button Content="Add Task"
+        <Button Content="Add Task"
                 HorizontalAlignment="Left" 
                 Margin="251,91,0,0" 
                 VerticalAlignment="Top" 
                 Width="104"
                 Height="43"
                 Command="{Binding AddTask}"/>
-		<ListBox HorizontalAlignment="Left" 
+        <ListBox HorizontalAlignment="Left" 
                  Height="192" 
                  Margin="13,144,0,0" 
                  VerticalAlignment="Top" 
                  Width="219"
                  ItemsSource="{Binding TemplateCollection, Mode=OneWay}"
                  SelectedItem="{Binding SelectedTemplateId, Mode=TwoWay}"/>
-		<!-- ListBox HorizontalAlignment="Left" 
+        <!-- ListBox HorizontalAlignment="Left" 
                  Height="182" 
                  Margin="13,341,0,0" 
                  VerticalAlignment="Top" 
                  Width="219"
                  ItemsSource="{Binding TemplateInfoCollection, Mode=OneWay}"
                  SelectedItem="{Binding SelectedTemplateInfoId, Mode=OneWayToSource}"/-->
-		<DataGrid HorizontalAlignment="Left" 
+        <DataGrid HorizontalAlignment="Left" 
 		          Height="182" 
 		          Margin="13,341,0,0" 
 		          VerticalAlignment="Top" 
@@ -59,19 +59,14 @@
 			        Mode=TwoWay, 
 			        UpdateSourceTrigger=PropertyChanged
 			      }"
-		          CellEditEnding="DataGrid_CellEditEnding">
-			<!--<i:Interaction.Triggers>
-		    <i:EventTrigger EventName="CellEditEnding">
-		      <ei:CallMethodAction MethodName="ParamCellChanged" TargetObject="{Binding}"  />
-		    </i:EventTrigger>
-		  </i:Interaction.Triggers>-->
-			<DataGrid.Columns>
-				<DataGridTextColumn 
+		          CellEditEnding="ParamDataGrid_CellEditEnding">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
 				  Width="*"
 				  Header="Name" 
 				  IsReadOnly="True"  
 				  Binding="{Binding Name}"/>
-				<DataGridTextColumn 
+                <DataGridTextColumn 
 				  Width="*"
 				  Header="Value" 
 				  Binding="{
@@ -79,48 +74,65 @@
 					Mode=TwoWay,
 					UpdateSourceTrigger=PropertyChanged
 				  }"/>
-				<DataGridTextColumn 
+                <DataGridTextColumn 
 				  Width="*"
 				  Header="Default"  
 				  IsReadOnly="True" 
 				  Binding="{Binding DefaultValue}"/>
-			</DataGrid.Columns>
-		</DataGrid>
-		<DataGrid Margin="251,144,0,0"
-                 Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="254"
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid Margin="251,144,0,0"
+                 Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="508"
 		          AutoGenerateColumns="False"
                  ItemsSource="{Binding TaskCollection, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedTask, Mode=OneWayToSource}">
-		  <DataGrid.Columns>
-				<DataGridTextColumn 
-		        Width="0.3*"
-		        Header="Status" 
-		        IsReadOnly="True"  
-		        Binding="{Binding Status}"/>
-			<DataGridTextColumn 
-		        Width="*"
+                 SelectedItem="{Binding SelectedTask}"
+                 MouseDoubleClick="TaskDataGrid_MouseDoubleClick">
+            <!--<DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding State}" Value="Queued">
+                            <Setter Property="Background" Value="LightGreen"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="Idle">
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>-->
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+		        Width="0.5*"
 		        Header="Name" 
 		        IsReadOnly="True"  
 		        Binding="{Binding Name}"/>
-		    </DataGrid.Columns>
-		</DataGrid>
-		<Button Content="Start" 
+                <DataGridTextColumn 
+		        Width="0.2*"
+		        Header="Module" 
+		        IsReadOnly="True"  
+		        Binding="{Binding RunningModule}"/>
+                <DataGridTextColumn 
+		        Width="0.3*"
+		        Header="Queue" 
+		        IsReadOnly="True"  
+		        Binding="{Binding QueuedModule}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Start" 
                 HorizontalAlignment="Left" 
                 Margin="599,485,0,0" 
                 VerticalAlignment="Top" 
                 Width="75"
                 Command="{Binding StartQueue}"/>
-		<Button Content="Stop" 
+        <Button Content="Stop" 
                 HorizontalAlignment="Left" 
                 Margin="689,485,0,0" 
                 VerticalAlignment="Top" 
                 Width="75"
                 Command="{Binding StopQueue}"/>
-		<Label Content="{Binding SchedularStatus, Mode=OneWay}" 
+        <Label Content="{Binding SchedularStatus, Mode=OneWay}" 
                HorizontalAlignment="Left" 
                Margin="689,513,0,0" 
                VerticalAlignment="Top"/>
-		<Button
+        <Button
             Content="Enqueue Task"
             HorizontalAlignment="Left" 
             Margin="401,91,0,0" 
@@ -128,27 +140,27 @@
             Width="104"
             Height="43"
             Command="{Binding EnqueueTask}"/>
-		<ListBox
+        <!--<ListBox
             Margin="522,144,0,0"
             Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="237"
-            ItemsSource="{Binding QueuedTaskCollection, Mode=OneWay}"/>
-		<Button
+            ItemsSource="{Binding QueuedTaskCollection, Mode=OneWay}"/>-->
+        <!--<Button
             Content="Save Project" 
             HorizontalAlignment="Left" 
             Margin="139,10,0,0" 
             VerticalAlignment="Top" 
             Width="93"
             Height="40"
-            Command="{Binding SaveProject}"/>
-		<Button
+            Command="{Binding SaveProject}"/>-->
+        <Button
             Content="Load Project" 
             HorizontalAlignment="Left" 
-            Margin="262,10,0,0" 
+            Margin="139,10,0,0" 
             VerticalAlignment="Top" 
             Width="93"
             Height="40"
             Command="{Binding LoadProject}"/>
-		<TextBlock 
+        <TextBlock 
 		  HorizontalAlignment="Left" 
 		  Margin="522,22,0,0" 
 		  TextWrapping="Wrap" 
@@ -156,12 +168,12 @@
 		  Height="98" 
 		  Width="237"
 		  Text="{Binding LogText, Mode=OneWay}"/>
-		<Button Content="Load param from task"
+        <Button Content="Load param from task"
 	  HorizontalAlignment="Left" 
 	  Margin="251,478,0,0" 
 	  VerticalAlignment="Top" 
 	  Width="145"
 	  Height="43"
 	  Command="{Binding LoadParamFromTask}"/>
-	</Grid>
+    </Grid>
 </UserControl>

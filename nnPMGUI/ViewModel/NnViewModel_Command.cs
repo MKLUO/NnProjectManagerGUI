@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace NnManagerGUI.ViewModel
         bool IsQueueRunning()
         {
             if (!IsProjectLoaded()) return false;
-            return project.IsSchedulerRunning();
+            return project.IsSchedularRunning();
         }
 
         #endregion
@@ -39,14 +40,18 @@ namespace NnManagerGUI.ViewModel
 
         void NewProjectExecute()
         {
-            string path = UtilGUI.OpenFileDialogToGetFolder();
-            if (path == null) return;
+            //string path = UtilGUI.OpenFileDialogToGetFolder();
+            //if (path == null) return;
+
+            string path = UtilGUI.OpenFileDialogToGetPath();
 
             Project newProject = Project.NewProject(path);
             if (newProject == null) return;
 
             project = newProject;
             project.PropertyChanged += OnProjectPropertyChange;
+
+            ResetSelections();
             OnProjectPropertyChange();
         }
 
@@ -65,18 +70,22 @@ namespace NnManagerGUI.ViewModel
             string path = UtilGUI.OpenFileDialogToGetFolder();
             if (path == null) return;
 
+            //string path = UtilGUI.OpenFileDialogToGetPath(true);
+
             Project newProject = Project.LoadProject(path);
             if (newProject == null) return;
 
             project = newProject;
             project.PropertyChanged += OnProjectPropertyChange;
+
+            ResetSelections();
             OnProjectPropertyChange();
         }
 
         public ICommand SaveProject {
             get {
                 return new RelayCommand(
-                    SaveProjectExecute, 
+                    SaveProjectExecute,
                     IsProjectLoaded);
             }
         }
@@ -89,7 +98,7 @@ namespace NnManagerGUI.ViewModel
         public ICommand AddTemplate {
             get {
                 return new RelayCommand(
-                    AddTemplateExecute, 
+                    AddTemplateExecute,
                     IsProjectLoaded);
             }
         }
@@ -103,21 +112,25 @@ namespace NnManagerGUI.ViewModel
                     "NN++ template files (*.nnptmpl)|*.nnptmpl|All files (*.*)|*.*"
                 );
 
-            project.AddTemplate(id, content);
-            OnProjectPropertyChange();
+            if (fileOpened == false) return;
+
+            if (project.AddTemplate(id, content)) {
+                OnPropertyChange("TemplateCollection");
+                SelectedTemplateId = id;
+            }
         }
 
         public ICommand AddTask {
             get {
                 return new RelayCommand(
-                    AddTaskExecute, 
+                    AddTaskExecute,
                     () => IsProjectLoaded() && (SelectedTemplateId != null));
             }
         }
 
         void AddTaskExecute()
         {
-            Dictionary<string, (string, string)> paramDict = 
+            Dictionary<string, (string, string)> paramDict =
                 new Dictionary<string, (string, string)>();
 
             foreach (var param in paramCollection) {
@@ -127,58 +140,54 @@ namespace NnManagerGUI.ViewModel
                     return;
             }
 
-            project.AddTask(
+            string id = project.AddTask(
                 SelectedTemplateId,
                 paramDict);
-
-            OnProjectPropertyChange();
+            
+            OnPropertyChange("TaskCollection");
+            SelectedTask = GetTaskByName(id);
         }
 
         public ICommand StartQueue {
             get {
                 return new RelayCommand(
-                    StartQueueExecute, 
-                    () => !IsQueueRunning());
+                    StartQueueExecute,
+                    () => IsProjectLoaded() && !IsQueueRunning());
             }
         }
 
         void StartQueueExecute()
         {
             project.StartScheduler();
-            OnProjectPropertyChange();
+            OnPropertyChange("SchedularStatus");
         }
 
         public ICommand StopQueue {
             get {
                 return new RelayCommand(
-                    StopQueueExecute, 
-                    IsQueueRunning);
+                    StopQueueExecute,
+                    () => IsProjectLoaded() && IsQueueRunning());
             }
         }
 
         void StopQueueExecute()
         {
             project.StopScheduler();
-            OnProjectPropertyChange();
+            OnPropertyChange("SchedularStatus");
         }
 
         public ICommand EnqueueTask {
             get {
                 return new RelayCommand(
                     EnqueueTaskExecute,
-
                     () => IsProjectLoaded() && (SelectedTask != null));
-                                        //() => IsProjectLoaded() && (SelectedTasks != null));
             }
         }
 
         void EnqueueTaskExecute()
         {
-            //foreach (var task in SelectedTasks)
-            //    project.EnqueueTask(task.Name);
-            project.EnqueueTask(SelectedTask.Name);
-
-            OnProjectPropertyChange();
+            project.EnqueueTaskWithModule(SelectedTask.Name, "Test");
+            OnPropertyChange("TaskCollection");
         }
 
         public ICommand LoadParamFromTask {
@@ -186,14 +195,9 @@ namespace NnManagerGUI.ViewModel
                 return new RelayCommand(
                     LoadParamFromTaskExecute,
                     () => {
-
-                        //if (SelectedTasks == null)
                         if (SelectedTask == null)
-
                             return false;
                         else
-
-                            //return (IsProjectLoaded() && (SelectedTasks.Count == 1));
                             return IsProjectLoaded();
                     }
                 );
@@ -202,15 +206,6 @@ namespace NnManagerGUI.ViewModel
 
         void LoadParamFromTaskExecute()
         {
-            //SelectedTemplateId = 
-            //    (string)
-            //    project.GetTaskInfo(selectedTasks[0].Name)["templateId"];
-
-            //SetNewParamCollection(
-            //    (Dictionary<string, (string, string)>)
-            //    project.GetTaskInfo(selectedTasks[0].Name)["param"]
-            //);
-
             SelectedTemplateId =
                 (string)
                 project.GetTaskInfo(selectedTask.Name)["templateId"];
@@ -220,7 +215,7 @@ namespace NnManagerGUI.ViewModel
                 project.GetTaskInfo(selectedTask.Name)["param"]
             );
 
-            OnProjectPropertyChange();
+            OnPropertyChange("ParamCollection");
         }
     }
 }

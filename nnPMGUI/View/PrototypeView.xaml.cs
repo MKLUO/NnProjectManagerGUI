@@ -30,10 +30,15 @@ namespace NnManagerGUI.View
             InitializeComponent();
         }
 
-        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void ParamDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             DataGrid dg = sender as DataGrid;
             ((ProjectViewModel)this.DataContext).UpdateParamCollection((Param)dg.SelectedItem);
+        }
+
+        private void TaskDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

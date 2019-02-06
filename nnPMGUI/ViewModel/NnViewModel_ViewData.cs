@@ -13,8 +13,13 @@ namespace NnManagerGUI.ViewModel
 {
     partial class ProjectViewModel
     {
-        public List<string> TemplateCollection
+        void ResetSelections()
         {
+            SelectedTask = null;
+            SelectedTemplateId = null;
+        }
+
+        public List<string> TemplateCollection {
             get {
                 if (project != null)
                     return project.GetTemplates();
@@ -24,45 +29,20 @@ namespace NnManagerGUI.ViewModel
         }
 
         string selectedTemplateId;
-        public string SelectedTemplateId
-        {
+        public string SelectedTemplateId {
             get { return selectedTemplateId; }
             set {
                 if (value != selectedTemplateId) {
                     selectedTemplateId = value;
-                    PropertyChanged?.Invoke(this, 
-                        new PropertyChangedEventArgs("SelectedTemplateId"));
-                    PropertyChanged?.Invoke(this, 
-                        new PropertyChangedEventArgs("TemplateInfoCollection"));
-                    
+                    OnPropertyChange("SelectedTemplateId");
+
                     SetNewParamCollection(
-                        project.GetTemplateParam(selectedTemplateId)
+                        project.GetTemplateInfo(selectedTemplateId)
                     );
                 }
             }
         }
 
-        //public List<string> TemplateInfoCollection
-        //{
-        //    get {
-        //        if (SelectedTemplateId != null)
-        //            return project.GetTemplateInfo(SelectedTemplateId);
-        //        else
-        //            return null;
-        //    }
-        //}
-
-
-        //string selectedTemplateInfoId;
-        //public string SelectedTemplateInfoId
-        //{
-        //    get { return selectedTemplateInfoId; }
-        //    set {
-        //        if (value != selectedTemplateInfoId) {
-        //            selectedTemplateInfoId = value;
-        //        }
-        //    }
-        //}
 
         public class Param
         {
@@ -88,8 +68,7 @@ namespace NnManagerGUI.ViewModel
         }
 
         List<Param> paramCollection;
-        public List<Param> ParamCollection 
-        {
+        public List<Param> ParamCollection {
             get {
                 return paramCollection;
             }
@@ -108,8 +87,7 @@ namespace NnManagerGUI.ViewModel
                     new Param(info.Key, info.Value.Item1, info.Value.Item2)
                 );
 
-            PropertyChanged?.Invoke(this, 
-                new PropertyChangedEventArgs("ParamCollection"));
+            OnPropertyChange("ParamCollection");
         }
 
         public void UpdateParamCollection(Param param)
@@ -117,69 +95,126 @@ namespace NnManagerGUI.ViewModel
             var obj = paramCollection.FirstOrDefault(x => x.Name == param.Name);
             obj.Value = param.Value;
 
-            PropertyChanged?.Invoke(this,
-                new PropertyChangedEventArgs("ParamCollection"));
+            OnPropertyChange("ParamCollection");
         }
 
-        public class Task
+        public class Task : INotifyPropertyChanged
         {
-            public Task(string name, string status)
+            public Task(string name, string runningModule, string queuedModule)
             {
                 this.Name = name;
-                this.Status = status;
+                this.RunningModule = runningModule;
+                this.QueuedModule = queuedModule;
             }
 
+            string name;
             public string Name {
-                get;
-                set;
-            }
-            public string Status {
-                get;
-                set;
-            }
-
-            public override string ToString()
-            {
-                return "[" + Status + "] " + Name;
-            }
-        }
-
-        public List<Task> TaskCollection
-        {
-            get {
-                if (project != null) {
-                    List<Task> taskCollection = new List<Task>();
-
-                    var taskStatuss = project.GetTasksStatus();
-                    foreach (var taskStatus in taskStatuss) {
-                        taskCollection.Add(
-                            new Task(
-                                taskStatus.Item1,
-                                taskStatus.Item2
-                            )
-                        );
+                get {
+                    return name;
+                }
+                set {
+                    if (value != name) {
+                        name = value;
+                        OnPropertyChange("Name");
                     }
+                }
+            }
+            string runningModule;
+            public string RunningModule {
+                get {
+                    return runningModule;
+                }
+                set {
+                    if (value != runningModule) {
+                        runningModule = value;
+                        OnPropertyChange("RunningModule");
+                    }
+                }
+            }
+            string queuedModule;
+            public string QueuedModule {
+                get {
+                    return queuedModule;
+                }
+                set {
+                    if (value != queuedModule) {
+                        queuedModule = value;
+                        OnPropertyChange("QueuedModule");
+                    }
+                }
+            }
 
-                    return taskCollection;
-                } else
-                    return null;
+            public void Update((string, string) updateData)
+            {
+                RunningModule = updateData.Item1;
+                QueuedModule = updateData.Item2;
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            void OnPropertyChange(string arg)
+            {
+                PropertyChanged?.Invoke(
+                    this, new PropertyChangedEventArgs(arg));
             }
         }
 
-        //List<Task> selectedTasks;
-        //public List<Task> SelectedTasks
-        //{
-        //    get { return selectedTasks; }
-        //    set {
-        //        if (value != selectedTasks) {
-        //            selectedTasks = value;
+        ObservableCollection<Task> taskCollection;
+        public ObservableCollection<Task> TaskCollection {
+            get {
+                if (project == null)
+                    return null;
 
-        //            //SetNewParamCollection(
-        //            //    project.GetTaskParam(selectedTask.Item1)
-        //            //);
-        //        }
-        //    }
-        //}
+                if (taskCollection == null)
+                    taskCollection = new ObservableCollection<Task>();
+
+                var newtaskStatus = project.GetTasks();
+
+                // 3-step update
+                // 1. Update
+                foreach (Task task in taskCollection)
+                    if (newtaskStatus.ContainsKey(task.Name))
+                        task.Update(newtaskStatus[task.Name]);
+
+                // 2. Remove
+                List<Task> removing =
+                    taskCollection
+                        .Where(x => !newtaskStatus.ContainsKey(x.Name)).ToList();
+                foreach (Task task in removing)
+                    taskCollection.Remove(task);
+
+                // 3. New
+                List<KeyValuePair<string, (string, string)>> adding =
+                    newtaskStatus
+                        .Where(
+                            x => taskCollection
+                                .FirstOrDefault(
+                                    y => x.Key == y.Name
+                                ) == null
+                        ).ToList();
+
+                foreach (var task in adding)
+                    taskCollection.Add(
+                        new Task(
+                            task.Key,
+                            task.Value.Item1,
+                            task.Value.Item2
+                        )
+                    );
+                
+                return taskCollection;
+            }
+            private set {}
+        }
+
+        Task GetTaskByName(string id)
+        {
+            //foreach (var item in TaskCollection)
+            //    if (item.Name == id)
+            //        return item;
+            //return null;
+
+            return taskCollection.FirstOrDefault(x => x.Name == id);
+        }
 
         Task selectedTask;
         public Task SelectedTask {
@@ -187,37 +222,26 @@ namespace NnManagerGUI.ViewModel
             set {
                 if (value != selectedTask) {
                     selectedTask = value;
-
-                    //SetNewParamCollection(
-                    //    project.GetTaskParam(selectedTask.Item1)
-                    //);
+                    OnPropertyChange("SelectedTask");
                 }
             }
         }
 
-        public List<string> QueuedTaskCollection
-        {
+        public string SchedularStatus {
             get {
-                if (project != null) {
-                    return project.GetQueuedTasksInfo();
-                } else
-                    return null;
-            }
-        }
+                if (project == null)
+                    return "";
 
-        public string SchedularStatus
-        {
-            get {
-                if (project != null) {
-                    return project.GetSchedulerStatus();
-                } else
-                    return null;
+                if (project.IsSchedularRunning())
+                    return "Active";
+                else
+                    return "Inactive";
             }
         }
 
         public string LogText {
             get {
-                return Util.GetLog();                
+                return Util.GetLog();
             }
         }
     }

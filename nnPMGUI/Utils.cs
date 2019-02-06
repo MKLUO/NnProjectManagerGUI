@@ -19,9 +19,25 @@ namespace NnManagerGUI.ViewModel
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = "C:\\Users";
             dialog.IsFolderPicker = true;
+            dialog.EnsureFileExists = false;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 return dialog.FileName;
             } else {
+                return null;
+            }
+        }
+
+        public static string OpenFileDialogToGetPath(bool Load = false)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\Users";
+            dialog.EnsureFileExists = Load;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                return dialog.FileName;
+            }
+            else
+            {
                 return null;
             }
         }
@@ -53,7 +69,7 @@ namespace NnManagerGUI.ViewModel
                     fileContent
                 );
             } else {
-                throw new Exception("OpenFileDialogToGetNameAndContent");
+                return (false, null, null);
             }
         }
 

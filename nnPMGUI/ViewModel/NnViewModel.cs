@@ -23,24 +23,36 @@ namespace NnManagerGUI.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        // ViewDatas that would change when project updates.
+        static string[] viewDatas = new string[]
+        {
+            "TemplateCollection",
+            "ParamCollection",
+            "TaskCollection", // Since (Tasks) NnTasks might be updated by project, we want it to be ObservableCollection.
+            "QueuedTaskCollection",
+            "SchedularStatus",
+            "LogText",
+        };
+
         void OnProjectPropertyChange(object sender, PropertyChangedEventArgs e) {
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("TemplateCollection"));
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("TemplateInfoCollection"));
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("TaskCollection"));
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("QueuedTaskCollection"));
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("SchedularStatus"));
-            PropertyChanged?.Invoke(
-                this, new PropertyChangedEventArgs("LogText"));
+            foreach (string vd in viewDatas)
+                PropertyChanged?.Invoke(
+                    this, new PropertyChangedEventArgs(vd));
         }
 
         void OnProjectPropertyChange() {
             OnProjectPropertyChange(this, new PropertyChangedEventArgs(""));
         }
+        void OnPropertyChange(string arg)
+        {
+            PropertyChanged?.Invoke(
+                this, new PropertyChangedEventArgs(arg));
+        }
+
+        //void OnTaskCollectionChange()
+        //{
+        //    UpdateTaskCollection();
+        //}
 
         bool OnWarnAndDecide(Util.WarnAndDecideEventArgs e)
         {
