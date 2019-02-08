@@ -176,17 +176,31 @@ namespace NnManagerGUI.ViewModel
             OnPropertyChange("SchedularStatus");
         }
 
-        public ICommand EnqueueTask {
+        public ICommand EnqueueTestTask {
             get {
                 return new RelayCommand(
-                    EnqueueTaskExecute,
+                    EnqueueTestTaskExecute,
                     () => IsProjectLoaded() && (SelectedTask != null));
             }
         }
 
-        void EnqueueTaskExecute()
+        void EnqueueTestTaskExecute()
         {
             project.EnqueueTaskWithModule(SelectedTask.Name, "Test");
+            OnPropertyChange("TaskCollection");
+        }
+
+        public ICommand EnqueueTestAnalTask {
+            get {
+                return new RelayCommand(
+                    EnqueueTestAnalTaskExecute,
+                    () => IsProjectLoaded() && (SelectedTask != null));
+            }
+        }
+
+        void EnqueueTestAnalTaskExecute()
+        {
+            project.EnqueueTaskWithModule(SelectedTask.Name, "Test Analyze");
             OnPropertyChange("TaskCollection");
         }
 

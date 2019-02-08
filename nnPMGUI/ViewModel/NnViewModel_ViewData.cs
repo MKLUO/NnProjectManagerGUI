@@ -100,11 +100,16 @@ namespace NnManagerGUI.ViewModel
 
         public class Task : INotifyPropertyChanged
         {
-            public Task(string name, string runningModule, string queuedModule)
+            public Task(
+                string name, 
+                string runningModule, 
+                string queuedModule, 
+                string status)
             {
                 this.Name = name;
                 this.RunningModule = runningModule;
                 this.QueuedModule = queuedModule;
+                this.Status = status;
             }
 
             string name;
@@ -144,10 +149,24 @@ namespace NnManagerGUI.ViewModel
                 }
             }
 
-            public void Update((string, string) updateData)
+            string status;
+            public string Status {
+                get {
+                    return status;
+                }
+                set {
+                    if (value != status) {
+                        status = value;
+                        OnPropertyChange("Status");
+                    }
+                }
+            }
+
+            public void Update((string, string, string) updateData)
             {
                 RunningModule = updateData.Item1;
                 QueuedModule = updateData.Item2;
+                Status = updateData.Item3;
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
@@ -183,7 +202,7 @@ namespace NnManagerGUI.ViewModel
                     taskCollection.Remove(task);
 
                 // 3. New
-                List<KeyValuePair<string, (string, string)>> adding =
+                List<KeyValuePair<string, (string, string, string)>> adding =
                     newtaskStatus
                         .Where(
                             x => taskCollection
@@ -197,7 +216,8 @@ namespace NnManagerGUI.ViewModel
                         new Task(
                             task.Key,
                             task.Value.Item1,
-                            task.Value.Item2
+                            task.Value.Item2,
+                            task.Value.Item3
                         )
                     );
                 
@@ -241,7 +261,7 @@ namespace NnManagerGUI.ViewModel
 
         public string LogText {
             get {
-                return Util.GetLog();
+                return project?.Log;
             }
         }
     }

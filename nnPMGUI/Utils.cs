@@ -14,26 +14,30 @@ namespace NnManagerGUI.ViewModel
 {
     static class UtilGUI
     {
+        static string lastFolderPath;
         public static string OpenFileDialogToGetFolder()
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = "C:\\Users";
+            dialog.InitialDirectory = lastFolderPath ?? "C:\\Users";
             dialog.IsFolderPicker = true;
             dialog.EnsureFileExists = false;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                lastFolderPath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
             } else {
                 return null;
             }
         }
 
+        static string lastFilePath;
         public static string OpenFileDialogToGetPath(bool Load = false)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = "C:\\Users";
+            dialog.InitialDirectory = lastFilePath ?? "C:\\Users";
             dialog.EnsureFileExists = Load;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
+                lastFilePath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
             }
             else
@@ -42,11 +46,12 @@ namespace NnManagerGUI.ViewModel
             }
         }
 
+        static string lastFilePath2;
         public static (bool, string, string) OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*")
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            openFileDialog.InitialDirectory = "c:\\";
+            openFileDialog.InitialDirectory = lastFilePath2 ?? "c:\\";
             openFileDialog.Filter = filter;
             openFileDialog.FilterIndex = 2;
             openFileDialog.RestoreDirectory = true;
@@ -62,6 +67,8 @@ namespace NnManagerGUI.ViewModel
                 using (StreamReader reader = new StreamReader(fileStream)) {
                     fileContent = reader.ReadToEnd();
                 }
+
+                lastFilePath2 = Directory.GetParent(openFileDialog.FileName).ToString();
 
                 return (
                     true,

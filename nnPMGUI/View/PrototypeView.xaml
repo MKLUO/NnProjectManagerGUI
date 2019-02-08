@@ -18,7 +18,7 @@
                 Margin="13,10,0,0" 
                 VerticalAlignment="Top" 
                 Width="93"
-                Height="40"
+                Height="40"                
                 Command="{Binding NewProject}"/>
         <Button Content="Add Template"
                 HorizontalAlignment="Left" 
@@ -99,21 +99,49 @@
                 </Style>
             </DataGrid.RowStyle>-->
             <DataGrid.Columns>
-                <DataGridTextColumn 
-		        Width="0.5*"
-		        Header="Name" 
-		        IsReadOnly="True"  
-		        Binding="{Binding Name}"/>
-                <DataGridTextColumn 
-		        Width="0.2*"
-		        Header="Module" 
-		        IsReadOnly="True"  
-		        Binding="{Binding RunningModule}"/>
-                <DataGridTextColumn 
-		        Width="0.3*"
-		        Header="Queue" 
-		        IsReadOnly="True"  
-		        Binding="{Binding QueuedModule}"/>
+                <DataGridTemplateColumn 
+                    Width="0.2*"
+                    Header="Name" 
+		            IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                                Text="{Binding Name}" 
+                                ToolTip="{Binding Name}"
+                                TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn 
+                    Width="0.3*"
+                    Header="Modules" 
+		            IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Inlines>
+                                    <Run FontWeight="Bold"
+                                         Text="{Binding RunningModule}" />
+                                    <Run Foreground="Gray"
+                                         Text="{Binding QueuedModule}" />
+                            </TextBlock.Inlines>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn 
+                    Width="0.5*"
+                    Header="Status" 
+		            IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                                Text="{Binding Status}" 
+                                ToolTip="{Binding Status}"
+                                TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Button Content="Start" 
@@ -133,13 +161,13 @@
                Margin="689,513,0,0" 
                VerticalAlignment="Top"/>
         <Button
-            Content="Enqueue Task"
+            Content="Test Task"
             HorizontalAlignment="Left" 
-            Margin="401,91,0,0" 
+            Margin="388,24,0,0" 
             VerticalAlignment="Top" 
             Width="104"
             Height="43"
-            Command="{Binding EnqueueTask}"/>
+            Command="{Binding EnqueueTestTask}"/>
         <!--<ListBox
             Margin="522,144,0,0"
             Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="237"
@@ -160,14 +188,13 @@
             Width="93"
             Height="40"
             Command="{Binding LoadProject}"/>
-        <TextBlock 
-		  HorizontalAlignment="Left" 
-		  Margin="522,22,0,0" 
+        <ScrollViewer Margin="497,0,0.4,413.2">
+            <TextBlock 
+		  HorizontalAlignment="Left"
 		  TextWrapping="Wrap" 
 		  VerticalAlignment="Top" 
-		  Height="98" 
-		  Width="237"
 		  Text="{Binding LogText, Mode=OneWay}"/>
+        </ScrollViewer>
         <Button Content="Load param from task"
 	  HorizontalAlignment="Left" 
 	  Margin="251,478,0,0" 
@@ -175,5 +202,13 @@
 	  Width="145"
 	  Height="43"
 	  Command="{Binding LoadParamFromTask}"/>
+        <Button
+            Content="Test Anal. Task"
+            HorizontalAlignment="Left" 
+            Margin="388,91,0,0" 
+            VerticalAlignment="Top" 
+            Width="104"
+            Height="43"
+            Command="{Binding EnqueueTestAnalTask}"/>
     </Grid>
 </UserControl>

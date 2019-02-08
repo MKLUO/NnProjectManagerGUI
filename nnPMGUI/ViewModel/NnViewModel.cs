@@ -28,8 +28,7 @@ namespace NnManagerGUI.ViewModel
         {
             "TemplateCollection",
             "ParamCollection",
-            "TaskCollection", // Since (Tasks) NnTasks might be updated by project, we want it to be ObservableCollection.
-            "QueuedTaskCollection",
+            "TaskCollection", 
             "SchedularStatus",
             "LogText",
         };
