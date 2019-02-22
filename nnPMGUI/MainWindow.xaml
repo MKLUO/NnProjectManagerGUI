@@ -8,6 +8,7 @@
   xmlns:vw="clr-namespace:NnManagerGUI.View"
   xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
   mc:Ignorable="d"
-  Title="NN Manager" Height="724" Width="868">
-	<vw:PrototypeView/>
+  Title="NN Manager" Height="596" Width="813"
+  Closing="Window_Closing">
+	<vw:PrototypeView x:Name="prototypeView"/>
 </Window>

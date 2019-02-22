@@ -3,10 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
-             xmlns:local="clr-namespace:NnManagerGUI"
-             xmlns:vw="clr-namespace:NnManagerGUI.View"
              xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
              mc:Ignorable="d" Height="547" Width="790">
     <UserControl.DataContext>
@@ -15,30 +11,30 @@
     <Grid Background="White">
         <Button Content="New Project" 
                 HorizontalAlignment="Left" 
-                Margin="13,10,0,0" 
+                Margin="10,10,0,0" 
                 VerticalAlignment="Top" 
-                Width="93"
+                Width="80"
                 Height="40"                
                 Command="{Binding NewProject}"/>
-        <Button Content="Add Template"
+        <Button Content="Delete Template"
                 HorizontalAlignment="Left" 
-                Margin="13,79,0,0" 
+                Margin="10,306,0,0" 
                 VerticalAlignment="Top" 
-                Width="133"
-                Height="55"
-                Command="{Binding AddTemplate}"/>
+                Width="127"
+                Height="30"
+                Command="{Binding DeleteTemplate}"/>
         <Button Content="Add Task"
                 HorizontalAlignment="Left" 
-                Margin="251,91,0,0" 
+                Margin="142,252,0,0" 
                 VerticalAlignment="Top" 
-                Width="104"
-                Height="43"
+                Width="90"
+                Height="49"
                 Command="{Binding AddTask}"/>
         <ListBox HorizontalAlignment="Left" 
                  Height="192" 
-                 Margin="13,144,0,0" 
+                 Margin="10,55,0,0" 
                  VerticalAlignment="Top" 
-                 Width="219"
+                 Width="222"
                  ItemsSource="{Binding TemplateCollection, Mode=OneWay}"
                  SelectedItem="{Binding SelectedTemplateId, Mode=TwoWay}"/>
         <!-- ListBox HorizontalAlignment="Left" 
@@ -50,9 +46,9 @@
                  SelectedItem="{Binding SelectedTemplateInfoId, Mode=OneWayToSource}"/-->
         <DataGrid HorizontalAlignment="Left" 
 		          Height="182" 
-		          Margin="13,341,0,0" 
+		          Margin="10,341,0,0" 
 		          VerticalAlignment="Top" 
-		          Width="219"
+		          Width="222"
 		          AutoGenerateColumns="False"
 		          ItemsSource="{
 			        Binding ParamCollection, 
@@ -81,8 +77,8 @@
 				  Binding="{Binding DefaultValue}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid Margin="251,144,0,0"
-                 Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="508"
+        <DataGrid Margin="237,144,0,0"
+                 Height="344" VerticalAlignment="Top" HorizontalAlignment="Left" Width="543"
 		          AutoGenerateColumns="False"
                  ItemsSource="{Binding TaskCollection, Mode=OneWay}"
                  SelectedItem="{Binding SelectedTask}"
@@ -118,13 +114,15 @@
 		            IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock>
+                            <TextBlock
+                              TextTrimming="CharacterEllipsis">
                                 <TextBlock.Inlines>
                                     <Run FontWeight="Bold"
                                          Text="{Binding RunningModule}" />
                                     <Run Foreground="Gray"
-                                         Text="{Binding QueuedModule}" />
-                            </TextBlock.Inlines>
+                                         Text="{Binding QueuedModule}" 
+                                         ToolTip="{Binding QueuedModule}"/>
+                                </TextBlock.Inlines>
                             </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -146,28 +144,28 @@
         </DataGrid>
         <Button Content="Start" 
                 HorizontalAlignment="Left" 
-                Margin="599,485,0,0" 
+                Margin="625,493,0,0" 
                 VerticalAlignment="Top" 
                 Width="75"
-                Command="{Binding StartQueue}"/>
+                Command="{Binding StartQueue}" Height="20"/>
         <Button Content="Stop" 
                 HorizontalAlignment="Left" 
-                Margin="689,485,0,0" 
+                Margin="705,493,0,0" 
                 VerticalAlignment="Top" 
                 Width="75"
-                Command="{Binding StopQueue}"/>
-        <Label Content="{Binding SchedularStatus, Mode=OneWay}" 
+                Command="{Binding StopQueue}" Height="20"/>
+        <!--<Label Content="{Binding SchedularStatus, Mode=OneWay}" 
                HorizontalAlignment="Left" 
                Margin="689,513,0,0" 
-               VerticalAlignment="Top"/>
+               VerticalAlignment="Top"/>-->
         <Button
-            Content="Test Task"
+            Content="Enqueue Module"
             HorizontalAlignment="Left" 
-            Margin="388,24,0,0" 
+            Margin="362,109,0,0" 
             VerticalAlignment="Top" 
-            Width="104"
-            Height="43"
-            Command="{Binding EnqueueTestTask}"/>
+            Width="100"
+            Height="30"
+            Command="{Binding EnqueueModule}"/>
         <!--<ListBox
             Margin="522,144,0,0"
             Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="237"
@@ -183,32 +181,54 @@
         <Button
             Content="Load Project" 
             HorizontalAlignment="Left" 
-            Margin="139,10,0,0" 
+            Margin="95,10,0,0" 
             VerticalAlignment="Top" 
-            Width="93"
+            Width="80"
             Height="40"
             Command="{Binding LoadProject}"/>
-        <ScrollViewer Margin="497,0,0.4,413.2">
+        <ScrollViewer Margin="600,10,10,408"
+                      VerticalScrollBarVisibility="Hidden">
             <TextBlock 
-		  HorizontalAlignment="Left"
-		  TextWrapping="Wrap" 
-		  VerticalAlignment="Top" 
-		  Text="{Binding LogText, Mode=OneWay}"/>
+              HorizontalAlignment="Left"
+              TextWrapping="Wrap" 
+              VerticalAlignment="Top" 
+              FontSize="10"
+              Text="{Binding LogText, Mode=OneWay}"/>
         </ScrollViewer>
         <Button Content="Load param from task"
 	  HorizontalAlignment="Left" 
-	  Margin="251,478,0,0" 
+	  Margin="237,493,0,0" 
 	  VerticalAlignment="Top" 
-	  Width="145"
-	  Height="43"
+	  Width="150"
+	  Height="30"
 	  Command="{Binding LoadParamFromTask}"/>
-        <Button
-            Content="Test Anal. Task"
-            HorizontalAlignment="Left" 
-            Margin="388,91,0,0" 
+        <ListBox HorizontalAlignment="Left" 
+            Height="129" 
+            Margin="237,10,0,0" 
             VerticalAlignment="Top" 
-            Width="104"
-            Height="43"
-            Command="{Binding EnqueueTestAnalTask}"/>
+            Width="120"
+            ItemsSource="{Binding ModuleCollection, Mode=OneWay}"
+            SelectedItem="{Binding SelectedModuleId, Mode=TwoWay}"/>
+        <Button Content="Add Template"
+            HorizontalAlignment="Left" 
+            Margin="10,252,0,0" 
+            VerticalAlignment="Top" 
+            Width="127"
+            Height="49"
+            Command="{Binding AddTemplate}"/>
+        <Button Content="Delete Task"
+            HorizontalAlignment="Left" 
+            Margin="142,306,0,0" 
+            VerticalAlignment="Top" 
+            Width="90"
+            Height="30"
+            Command="{Binding DeleteTask}"/>
+        <Button Content="Clear Modules"
+            HorizontalAlignment="Left" 
+            Margin="467,109,0,0" 
+            VerticalAlignment="Top" 
+            Width="100"
+            Height="30"
+            Command="{Binding ClearModules}"/>
     </Grid>
 </UserControl>

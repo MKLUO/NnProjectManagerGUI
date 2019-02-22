@@ -44,6 +44,7 @@ namespace NnManagerGUI.ViewModel
             //if (path == null) return;
 
             string path = UtilGUI.OpenFileDialogToGetPath();
+            if (path == null) return;
 
             Project newProject = Project.NewProject(path);
             if (newProject == null) return;
@@ -120,6 +121,22 @@ namespace NnManagerGUI.ViewModel
             }
         }
 
+        public ICommand DeleteTemplate {
+            get {
+                return new RelayCommand(
+                    DeleteTemplateExecute,
+                    () => IsProjectLoaded() && (SelectedTemplateId != null));
+            }
+        }
+
+        void DeleteTemplateExecute()
+        {
+            if (project.DeleteTemplate(SelectedTemplateId)) {
+                SelectedTemplateId = null;
+                OnPropertyChange("TemplateCollection");
+            }
+        }
+
         public ICommand AddTask {
             get {
                 return new RelayCommand(
@@ -143,9 +160,26 @@ namespace NnManagerGUI.ViewModel
             string id = project.AddTask(
                 SelectedTemplateId,
                 paramDict);
-            
-            OnPropertyChange("TaskCollection");
-            SelectedTask = GetTaskByName(id);
+
+            if (id != null) {
+                OnPropertyChange("TaskCollection");
+                SelectedTask = GetTaskByName(id);
+            }
+        }
+        public ICommand DeleteTask {
+            get {
+                return new RelayCommand(
+                    DeleteTaskExecute,
+                    () => IsProjectLoaded() && (SelectedTask != null));
+            }
+        }
+
+        void DeleteTaskExecute()
+        {
+            if (project.DeleteTask(SelectedTask.Name)) {
+                SelectedTask = null;
+                OnPropertyChange("TaskCollection");
+            }
         }
 
         public ICommand StartQueue {
@@ -176,31 +210,37 @@ namespace NnManagerGUI.ViewModel
             OnPropertyChange("SchedularStatus");
         }
 
-        public ICommand EnqueueTestTask {
+        public ICommand EnqueueModule {
             get {
                 return new RelayCommand(
-                    EnqueueTestTaskExecute,
-                    () => IsProjectLoaded() && (SelectedTask != null));
+                    EnqueueModuleExecute,
+                    () => 
+                        IsProjectLoaded() && 
+                        (SelectedTask != null) && 
+                        (SelectedModuleId != null));
             }
         }
 
-        void EnqueueTestTaskExecute()
+        void EnqueueModuleExecute()
         {
-            project.EnqueueTaskWithModule(SelectedTask.Name, "Test");
+            project.EnqueueTaskWithModule(SelectedTask.Name, SelectedModuleId);
             OnPropertyChange("TaskCollection");
         }
 
-        public ICommand EnqueueTestAnalTask {
+        public ICommand ClearModules {
             get {
                 return new RelayCommand(
-                    EnqueueTestAnalTaskExecute,
-                    () => IsProjectLoaded() && (SelectedTask != null));
+                    ClearModulesExecute,
+                    () =>
+                        IsProjectLoaded() &&
+                        (SelectedTask != null)
+                );
             }
         }
 
-        void EnqueueTestAnalTaskExecute()
+        void ClearModulesExecute()
         {
-            project.EnqueueTaskWithModule(SelectedTask.Name, "Test Analyze");
+            project.ClearModules(SelectedTask.Name);
             OnPropertyChange("TaskCollection");
         }
 

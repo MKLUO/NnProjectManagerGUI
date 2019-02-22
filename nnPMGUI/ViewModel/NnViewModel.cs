@@ -28,9 +28,10 @@ namespace NnManagerGUI.ViewModel
         {
             "TemplateCollection",
             "ParamCollection",
-            "TaskCollection", 
+            "TaskCollection",
+            "ModuleCollection",
             "SchedularStatus",
-            "LogText",
+            "LogText"
         };
 
         void OnProjectPropertyChange(object sender, PropertyChangedEventArgs e) {
@@ -48,10 +49,11 @@ namespace NnManagerGUI.ViewModel
                 this, new PropertyChangedEventArgs(arg));
         }
 
-        //void OnTaskCollectionChange()
-        //{
-        //    UpdateTaskCollection();
-        //}
+        public bool IsBusy()
+        {
+            if (!IsProjectLoaded()) return false;
+            else return project.IsBusy();
+        }
 
         bool OnWarnAndDecide(Util.WarnAndDecideEventArgs e)
         {

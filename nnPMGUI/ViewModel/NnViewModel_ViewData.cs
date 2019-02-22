@@ -42,8 +42,7 @@ namespace NnManagerGUI.ViewModel
                 }
             }
         }
-
-
+        
         public class Param
         {
             public Param(string name, string value, string defaultValue)
@@ -77,8 +76,7 @@ namespace NnManagerGUI.ViewModel
                     paramCollection = value;
             }
         }
-
-
+        
         void SetNewParamCollection(Dictionary<string, (string, string)> param)
         {
             paramCollection = new List<Param>();
@@ -243,6 +241,27 @@ namespace NnManagerGUI.ViewModel
                 if (value != selectedTask) {
                     selectedTask = value;
                     OnPropertyChange("SelectedTask");
+                    OnPropertyChange("ModuleCollection");
+                }
+            }
+        }
+
+        public List<string> ModuleCollection {
+            get {
+                if ((project != null) && selectedTask != null)
+                    return project.GetModules(selectedTask.Name);
+                else
+                    return null;
+            }
+        }
+
+        string selectedModuleId;
+        public string SelectedModuleId {
+            get { return selectedModuleId; }
+            set {
+                if (value != selectedModuleId) {
+                    selectedModuleId = value;
+                    OnPropertyChange("SelectedModuleId");
                 }
             }
         }
