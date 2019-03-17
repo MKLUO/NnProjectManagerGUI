@@ -1,26 +1,24 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using System.Windows;
 
 using Microsoft.WindowsAPICodePack.Dialogs;
+
+#nullable enable
 
 namespace NnManagerGUI.ViewModel
 {
     static class UtilGUI
     {
         static string lastFolderPath;
-        public static string OpenFileDialogToGetFolder()
+        public static string? OpenFileDialogToGetFolder()
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = lastFolderPath ?? "C:\\Users";
-            dialog.IsFolderPicker = true;
-            dialog.EnsureFileExists = false;
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog {
+                InitialDirectory = lastFolderPath ?? "C:\\Users",
+                IsFolderPicker = true,
+                EnsureFileExists = false
+            };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 lastFolderPath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
@@ -30,11 +28,12 @@ namespace NnManagerGUI.ViewModel
         }
 
         static string lastFilePath;
-        public static string OpenFileDialogToGetPath(bool Load = false)
+        public static string? OpenFileDialogToGetPath(bool Load = false)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = lastFilePath ?? "C:\\Users";
-            dialog.EnsureFileExists = Load;
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog {
+                InitialDirectory = lastFilePath ?? "C:\\Users",
+                EnsureFileExists = Load
+            };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 lastFilePath = Directory.GetParent(dialog.FileName).ToString();
@@ -47,10 +46,13 @@ namespace NnManagerGUI.ViewModel
         }
 
         static string lastFilePath2;
-        public static (bool, string, string) OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*")
+        public static (bool success, string? name, string? content) 
+            OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*", string? title = null)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
+            if (title != null)
+                openFileDialog.Title = title;
             openFileDialog.InitialDirectory = lastFilePath2 ?? "c:\\";
             openFileDialog.Filter = filter;
             openFileDialog.FilterIndex = 2;

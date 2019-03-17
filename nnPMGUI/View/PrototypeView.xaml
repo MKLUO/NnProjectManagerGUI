@@ -4,231 +4,265 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
-             mc:Ignorable="d" Height="547" Width="790">
+             mc:Ignorable="d" Height="560" Width="1000">
     <UserControl.DataContext>
         <vm:ProjectViewModel/>
     </UserControl.DataContext>
     <Grid Background="White">
-        <Button Content="New Project" 
-                HorizontalAlignment="Left" 
-                Margin="10,10,0,0" 
-                VerticalAlignment="Top" 
-                Width="80"
-                Height="40"                
-                Command="{Binding NewProject}"/>
-        <Button Content="Delete Template"
-                HorizontalAlignment="Left" 
-                Margin="10,306,0,0" 
-                VerticalAlignment="Top" 
-                Width="127"
-                Height="30"
-                Command="{Binding DeleteTemplate}"/>
-        <Button Content="Add Task"
-                HorizontalAlignment="Left" 
-                Margin="142,252,0,0" 
-                VerticalAlignment="Top" 
-                Width="90"
-                Height="49"
-                Command="{Binding AddTask}"/>
-        <ListBox HorizontalAlignment="Left" 
-                 Height="192" 
-                 Margin="10,55,0,0" 
-                 VerticalAlignment="Top" 
-                 Width="222"
-                 ItemsSource="{Binding TemplateCollection, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedTemplateId, Mode=TwoWay}"/>
-        <!-- ListBox HorizontalAlignment="Left" 
-                 Height="182" 
-                 Margin="13,341,0,0" 
-                 VerticalAlignment="Top" 
-                 Width="219"
-                 ItemsSource="{Binding TemplateInfoCollection, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedTemplateInfoId, Mode=OneWayToSource}"/-->
-        <DataGrid HorizontalAlignment="Left" 
-		          Height="182" 
-		          Margin="10,341,0,0" 
-		          VerticalAlignment="Top" 
-		          Width="222"
-		          AutoGenerateColumns="False"
-		          ItemsSource="{
-			        Binding ParamCollection, 
-			        Mode=TwoWay, 
-			        UpdateSourceTrigger=PropertyChanged
-			      }"
-		          CellEditEnding="ParamDataGrid_CellEditEnding">
+        <Menu DockPanel.Dock="Top" Height="20" Margin="0,0,0,540">
+            <MenuItem Header="Project">
+                <MenuItem Command="{Binding CommandNewProject}" Header="New..."/>
+                <MenuItem Command="{Binding CommandLoadProject}" Header="Load..."/>
+            </MenuItem>
+            <MenuItem Header="About">
+                <MenuItem Header="About NnManager..."/>
+                <MenuItem Header="Template Example"/>
+                <MenuItem Header="Parameter Example"/>
+            </MenuItem>
+        </Menu>
+
+        <Label Content="Templates (?)" 
+               ToolTip="Select a template to view its signature or create plan."
+               HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top"/>
+        <Label Content="Parameters (?)" 
+               ToolTip="Select a plan or task to load their signature."
+               HorizontalAlignment="Left" Margin="10,255,0,0" VerticalAlignment="Top"/>
+        <Label Content="Plans" HorizontalAlignment="Left" 
+               Margin="215,25,0,0" VerticalAlignment="Top"/>
+        <Label Content="Modules" HorizontalAlignment="Left" 
+               Margin="460,25,0,0" VerticalAlignment="Top"/>
+        <Label Content="Tasks in plan (?)" 
+               ToolTip="Select a plan to view its tasks."
+               HorizontalAlignment="Left" Margin="215,255,0,0" VerticalAlignment="Top"/>
+
+        <Button Command="{Binding CommandAddTemplate}"
+                HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Width="165" Height="25">
+            <TextBlock>Add Template...</TextBlock>
+        </Button>
+        <Button Command="{Binding CommandDeleteTemplate}"
+            HorizontalAlignment="Left" Margin="180,225,0,0" VerticalAlignment="Top" Width="30" Height="25">
+            <TextBlock><Run Text="X"/></TextBlock>
+        </Button>
+        <Button Command="{Binding CommandAddPlanEmpty}"
+                HorizontalAlignment="Left" Margin="215,225,0,0" VerticalAlignment="Top" Width="100" Height="25">
+            <TextBlock>New Plan</TextBlock>
+        </Button>
+        <!--<Button Command="{Binding CommandAddPlanFromFile}"
+                HorizontalAlignment="Left" Margin="320,225,0,0" VerticalAlignment="Top" Width="100" Height="25">
+            <TextBlock>from file...</TextBlock>
+        </Button>-->
+        <Button Command="{Binding CommandDeletePlan}"
+            HorizontalAlignment="Left" Margin="425,225,0,0" VerticalAlignment="Top" Width="30" Height="25">
+            <TextBlock>X</TextBlock>
+        </Button>
+        <Button Command="{Binding CommandAddTask}" 
+                HorizontalAlignment="Left" Margin="10,525,0,0" VerticalAlignment="Top" Width="80" Height="25">
+            <TextBlock>Add Task</TextBlock>
+        </Button>
+        <Button Command="{Binding CommandAddTaskFromFile}" 
+            HorizontalAlignment="Left" Margin="95,525,0,0" VerticalAlignment="Top" Width="80" Height="25">
+            <TextBlock>from file...</TextBlock>
+        </Button>
+        <Button Command="{Binding CommandDeleteTask}"
+            HorizontalAlignment="Left" Margin="180,525,0,0" VerticalAlignment="Top" Width="30" Height="25">
+            <TextBlock><Run Text="X"/></TextBlock>
+        </Button>
+        <Button Command="{Binding CommandEnqueueModule}"
+                Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="460,255,0,0" VerticalAlignment="Top" Width="100" Height="20"/>
+        <Button Command="{Binding CommandClearModules}"
+                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="565,255,0,0" VerticalAlignment="Top" Width="95" Height="20"/>
+        <Button Command="{Binding CommandToggleQueue}"
+                Content="{Binding TextSchedularStatus}" HorizontalAlignment="Left" Margin="360,255,0,0" VerticalAlignment="Top" Width="95" Height="20"/>
+
+        <ListBox ItemsSource="{Binding CollectionTemplate, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
+                 GotFocus="Templates_GotFocus"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 HorizontalAlignment="Left" Height="170" Margin="10,50,0,0" VerticalAlignment="Top" Width="200">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Id}" 
+                               ToolTip="{Binding Id}" TextTrimming="CharacterEllipsis"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox ItemsSource="{Binding CollectionModule, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedModule, Mode=TwoWay}"
+                 HorizontalAlignment="Left" Height="200" Margin="460,50,0,0" VerticalAlignment="Top" Width="200"/>
+
+        <DataGrid ItemsSource="{Binding CollectionPlan, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedPlan, Mode=TwoWay}"                 
+                  GotFocus="Plans_GotFocus"
+                  IsReadOnly="True"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="170" Margin="215,50,0,0" VerticalAlignment="Top" Width="240">
             <DataGrid.Columns>
-                <DataGridTextColumn 
-				  Width="*"
-				  Header="Name" 
-				  IsReadOnly="True"  
-				  Binding="{Binding Name}"/>
-                <DataGridTextColumn 
-				  Width="*"
-				  Header="Value" 
-				  Binding="{
-					Binding Value, 
-					Mode=TwoWay,
-					UpdateSourceTrigger=PropertyChanged
-				  }"/>
-                <DataGridTextColumn 
-				  Width="*"
-				  Header="Default"  
-				  IsReadOnly="True" 
-				  Binding="{Binding DefaultValue}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <DataGrid Margin="237,144,0,0"
-                 Height="344" VerticalAlignment="Top" HorizontalAlignment="Left" Width="543"
-		          AutoGenerateColumns="False"
-                 ItemsSource="{Binding TaskCollection, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedTask}"
-                 MouseDoubleClick="TaskDataGrid_MouseDoubleClick">
-            <!--<DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding State}" Value="Queued">
-                            <Setter Property="Background" Value="LightGreen"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding State}" Value="Idle">
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>-->
-            <DataGrid.Columns>
-                <DataGridTemplateColumn 
-                    Width="0.2*"
-                    Header="Name" 
-		            IsReadOnly="True">
+                <DataGridTemplateColumn Header="Id" Width="0.6*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock 
-                                Text="{Binding Name}" 
-                                ToolTip="{Binding Name}"
-                                TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Id}" 
+                                       ToolTip="{Binding Id}" TextTrimming="CharacterEllipsis"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn 
-                    Width="0.3*"
-                    Header="Modules" 
-		            IsReadOnly="True">
+                <DataGridTemplateColumn Header="Task #" Width="0.4*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock
-                              TextTrimming="CharacterEllipsis">
+                            <TextBlock TextTrimming="CharacterEllipsis">
                                 <TextBlock.Inlines>
-                                    <Run FontWeight="Bold"
-                                         Text="{Binding RunningModule}" />
-                                    <Run Foreground="Gray"
-                                         Text="{Binding QueuedModule}" 
-                                         ToolTip="{Binding QueuedModule}"/>
+                                    <Run Text="{Binding BusyTaskAmount, Mode=OneWay}" FontWeight="Bold"/>
+                                    <Run Text="/"/>
+                                    <Run Text="{Binding TaskAmount, Mode=OneWay}"/>
                                 </TextBlock.Inlines>
                             </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn 
-                    Width="0.5*"
-                    Header="Status" 
-		            IsReadOnly="True">
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid ItemsSource="{Binding CollectionParam.Consts, Mode=OneWay}"
+                  IsReadOnly="{Binding CollectionParam.FixConst, Mode=OneWay}"
+                  CellEditEnding="Params_CellEditEnding"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                  CanUserResizeColumns="False"
+                  CanUserReorderColumns="False"
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="111" Margin="10,280,0,0" VerticalAlignment="Top" Width="200">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock 
-                                Text="{Binding Status}" 
-                                ToolTip="{Binding Status}"
-                                TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Name}" 
+                                       ToolTip="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Default" Width="0.5*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Default}" 
+                                       ToolTip="{Binding Default}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="0.9*" Header="Value (Const)"/>
+                <!--<DataGridTemplateColumn Header="Value (Const)">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>                            
+                            <TextBox Text="{Binding Value}" 
+                                     ToolTip="{Binding Value}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>-->
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid ItemsSource="{Binding CollectionParam.Variables, Mode=OneWay}"
+                  CellEditEnding="Params_CellEditEnding"    
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  CanUserResizeColumns="False"
+                  CanUserReorderColumns="False"
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="124" Margin="10,396,0,0" VerticalAlignment="Top" Width="200">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" 
+                                       ToolTip="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Default" Width="0.5*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Default}" 
+                                       ToolTip="{Binding Default}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="0.9*" Header="Value (Variable)"/>
+                <!--<DataGridTemplateColumn Header="Value (Variable)">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value}" 
+                                     ToolTip="{Binding Value}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>-->
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid ItemsSource="{Binding CollectionTask, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
+                  GotFocus="Tasks_GotFocus"
+                  IsReadOnly="True"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="270" Margin="215,280,0,0" VerticalAlignment="Top" Width="445">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Id" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Id}" 
+                                       ToolTip="{Binding Id}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Modules" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock TextTrimming="CharacterEllipsis">
+                                <TextBlock.Inlines>
+                                    <Run Text="{Binding CurrentModule, Mode=OneWay}" FontWeight="Bold"/>
+                                    <Run Text="{Binding ModuleQueue, Mode=OneWay}" Foreground="Gray"/>
+                                </TextBlock.Inlines>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Completed" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ModuleDone, Mode=OneWay}" 
+                                       ToolTip="{Binding ModuleDone, Mode=OneWay}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Status" Width="2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Status, Mode=OneWay}" 
+                                       ToolTip="{Binding Status, Mode=OneWay}" TextTrimming="CharacterEllipsis"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Button Content="Start" 
-                HorizontalAlignment="Left" 
-                Margin="625,493,0,0" 
-                VerticalAlignment="Top" 
-                Width="75"
-                Command="{Binding StartQueue}" Height="20"/>
-        <Button Content="Stop" 
-                HorizontalAlignment="Left" 
-                Margin="705,493,0,0" 
-                VerticalAlignment="Top" 
-                Width="75"
-                Command="{Binding StopQueue}" Height="20"/>
-        <!--<Label Content="{Binding SchedularStatus, Mode=OneWay}" 
-               HorizontalAlignment="Left" 
-               Margin="689,513,0,0" 
-               VerticalAlignment="Top"/>-->
-        <Button
-            Content="Enqueue Module"
-            HorizontalAlignment="Left" 
-            Margin="362,109,0,0" 
-            VerticalAlignment="Top" 
-            Width="100"
-            Height="30"
-            Command="{Binding EnqueueModule}"/>
-        <!--<ListBox
-            Margin="522,144,0,0"
-            Height="327" VerticalAlignment="Top" HorizontalAlignment="Left" Width="237"
-            ItemsSource="{Binding QueuedTaskCollection, Mode=OneWay}"/>-->
-        <!--<Button
-            Content="Save Project" 
-            HorizontalAlignment="Left" 
-            Margin="139,10,0,0" 
-            VerticalAlignment="Top" 
-            Width="93"
-            Height="40"
-            Command="{Binding SaveProject}"/>-->
-        <Button
-            Content="Load Project" 
-            HorizontalAlignment="Left" 
-            Margin="95,10,0,0" 
-            VerticalAlignment="Top" 
-            Width="80"
-            Height="40"
-            Command="{Binding LoadProject}"/>
-        <ScrollViewer Margin="600,10,10,408"
-                      VerticalScrollBarVisibility="Hidden">
-            <TextBlock 
-              HorizontalAlignment="Left"
-              TextWrapping="Wrap" 
-              VerticalAlignment="Top" 
-              FontSize="10"
-              Text="{Binding LogText, Mode=OneWay}"/>
-        </ScrollViewer>
-        <Button Content="Load param from task"
-	  HorizontalAlignment="Left" 
-	  Margin="237,493,0,0" 
-	  VerticalAlignment="Top" 
-	  Width="150"
-	  Height="30"
-	  Command="{Binding LoadParamFromTask}"/>
-        <ListBox HorizontalAlignment="Left" 
-            Height="129" 
-            Margin="237,10,0,0" 
-            VerticalAlignment="Top" 
-            Width="120"
-            ItemsSource="{Binding ModuleCollection, Mode=OneWay}"
-            SelectedItem="{Binding SelectedModuleId, Mode=TwoWay}"/>
-        <Button Content="Add Template"
-            HorizontalAlignment="Left" 
-            Margin="10,252,0,0" 
-            VerticalAlignment="Top" 
-            Width="127"
-            Height="49"
-            Command="{Binding AddTemplate}"/>
-        <Button Content="Delete Task"
-            HorizontalAlignment="Left" 
-            Margin="142,306,0,0" 
-            VerticalAlignment="Top" 
-            Width="90"
-            Height="30"
-            Command="{Binding DeleteTask}"/>
-        <Button Content="Clear Modules"
-            HorizontalAlignment="Left" 
-            Margin="467,109,0,0" 
-            VerticalAlignment="Top" 
-            Width="100"
-            Height="30"
-            Command="{Binding ClearModules}"/>
+        <DataGrid ItemsSource="{Binding Module.Options, Mode=OneWay}"
+            CellEditEnding="Module_CellEditEnding"    
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            CanUserResizeColumns="False"
+            CanUserReorderColumns="False"
+            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="200" Margin="665,50,0,0" VerticalAlignment="Top" Width="200">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" 
+                                ToolTip="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Default" Width="0.5*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Default}" 
+                                ToolTip="{Binding Default}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                    Width="0.9*" Header="Value"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>

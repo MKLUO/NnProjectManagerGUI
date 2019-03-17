@@ -1,25 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-using NnManagerGUI;
+﻿using System.Windows.Controls;
 
 using ProjectViewModel = NnManagerGUI.ViewModel.ProjectViewModel;
-using Param = NnManagerGUI.ViewModel.ProjectViewModel.Param;
 
 namespace NnManagerGUI.View
 {
+    using Variable = NnManager.NnProjectData.Variable;
+    using SelectionModes = ProjectViewModel.SelectionModes;
+
     /// <summary>
     /// Interaction logic for PrototypeView.xaml
     /// </summary>
@@ -30,15 +17,32 @@ namespace NnManagerGUI.View
             InitializeComponent();
         }
 
-        private void ParamDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void Params_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            DataGrid dg = sender as DataGrid;
-            ((ProjectViewModel)this.DataContext).UpdateParamCollection((Param)dg.SelectedItem);
+            (this.DataContext as ProjectViewModel).UpdateParamCollection(
+                (sender as DataGrid).SelectedItem as Variable);
         }
 
-        private void TaskDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void Module_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-
+            (this.DataContext as ProjectViewModel).UpdateModule(
+                (sender as DataGrid).SelectedItem as Variable);
         }
+
+        private void Templates_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+            (this.DataContext as ProjectViewModel).SelectionMode = SelectionModes.Template;
+
+        private void Plans_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+            (this.DataContext as ProjectViewModel).SelectionMode = SelectionModes.Plan;
+
+        private void Tasks_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+            (this.DataContext as ProjectViewModel).SelectionMode = SelectionModes.Task;
+
+
+        //private void ParamDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        //{
+        //    DataGrid dg = sender as DataGrid;
+        //    ((ProjectViewModel)this.DataContext).UpdateParam((Param)dg.SelectedItem);
+        //}
     }
 }

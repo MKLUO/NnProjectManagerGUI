@@ -1,287 +1,223 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 using NnManager;
+using System;
+
+#nullable enable
 
 namespace NnManagerGUI.ViewModel
 {
+    using NnParamForm = NnProjectData.NnParamForm;
+    using NnModuleForm = NnProjectData.NnModuleForm;
+    using ModuleType = NnManager.ModuleType;
+
+    using Variable = NnProjectData.Variable;
+    using NnPlanData = NnProjectData.NnPlanData;
+    using NnTaskData = NnProjectData.NnTaskData;
+    using NnTemplateData = NnProjectData.NnTemplateData;
+
     partial class ProjectViewModel
     {
-        void ResetSelections()
-        {
-            SelectedTask = null;
-            SelectedTemplateId = null;
+        NnTemplateData? selectedTemplate;
+        public NnTemplateData? SelectedTemplate {
+            get =>
+                (selectedTemplate == null) ?
+                    null :
+                    (selectedTemplate = FindData(selectedTemplate, CollectionTemplate));
+            set {
+                SetField(ref selectedTemplate, FindData(value, CollectionTemplate));
+            }
         }
 
-        public List<string> TemplateCollection {
+        NnPlanData? selectedPlan;
+        public NnPlanData? SelectedPlan {
+            get =>
+                (selectedPlan == null) ? 
+                    null :
+                    (selectedPlan = FindData(selectedPlan, planCollection));
+            set {
+                SetField(ref selectedPlan, FindData(value, planCollection));
+            }
+        }        
+
+        NnTaskData? selectedTask;
+        public NnTaskData? SelectedTask {
+            get =>
+                (selectedTask == null) ?
+                    null :
+                    (selectedTask = FindData(selectedTask, taskCollection));
+            set {
+                SetField(ref selectedTask, FindData(value, taskCollection));
+            }
+        }
+
+        ModuleType? selectedModule;
+        public ModuleType? SelectedModule {
+            get =>
+                (selectedModule == null) ?
+                    null :
+                    (CollectionModule?.Contains(selectedModule ?? throw new Exception()) ?? false) ?
+                        selectedModule : 
+                        null;
+
+            set => SetField(ref selectedModule, value);
+        }
+
+        public enum SelectionModes
+        {
+            Template,
+            Plan,
+            Task
+        }
+
+        SelectionModes? selectionMode;
+        public SelectionModes? SelectionMode {
+            get => selectionMode;
+            set => SetField(ref selectionMode, value);
+        }
+
+        NnParamForm? param;
+        public NnParamForm? CollectionParam {
             get {
-                if (project != null)
-                    return project.GetTemplates();
+                if (projectData == null)
+                    return (param = null);
+                if (SelectionMode == null)
+                    return (param = null);
+
+                switch (SelectionMode)
+                {
+                    case SelectionModes.Template:
+                        if (SelectedTemplate == null) return null;
+                        return (param =
+                            SelectedTemplate.GetForm());
+
+                    case SelectionModes.Plan:
+                        if (SelectedPlan == null) return null;
+                        return (param =
+                            SelectedPlan.ParamForm());
+
+                    case SelectionModes.Task:
+                        if (SelectedPlan == null) return null;
+                        if (SelectedTask == null) return null;
+                        return (param =
+                            SelectedPlan.ParamForm(SelectedTask));
+
+                    default:
+                        return (param = null);
+                }
+            }
+        }
+
+        public void UpdateParamCollection(Variable newVar)
+        {
+            if (param == null)
+                return;
+
+            foreach (Variable oldVar in param.Consts.Concat(param.Variables))
+                if (oldVar.Name == newVar.Name) {
+                    oldVar.Value = newVar.Value;
+                    return;
+                }
+        }
+
+        NnModuleForm? module;
+        public NnModuleForm? Module {
+            get {
+                if (projectData == null)
+                    return (module = null);
+                if (selectedModule != null)
+                    return (module = new NnModuleForm(selectedModule ?? ModuleType.NnMain));
                 else
                     return null;
             }
         }
 
-        string selectedTemplateId;
-        public string SelectedTemplateId {
-            get { return selectedTemplateId; }
-            set {
-                if (value != selectedTemplateId) {
-                    selectedTemplateId = value;
-                    OnPropertyChange("SelectedTemplateId");
-
-                    SetNewParamCollection(
-                        project.GetTemplateInfo(selectedTemplateId)
-                    );
-                }
-            }
-        }
-        
-        public class Param
+        public void UpdateModule(Variable newVar)
         {
-            public Param(string name, string value, string defaultValue)
-            {
-                this.Name = name;
-                this.Value = value;
-                this.DefaultValue = defaultValue;
-            }
+            if (module == null)
+                return;
 
-            public string Name {
-                get;
-                set;
-            }
-            public string Value {
-                get;
-                set;
-            }
-            public string DefaultValue {
-                get;
-                set;
-            }
+            foreach (Variable oldVar in module.Options)
+                if (oldVar.Name == newVar.Name) {
+                    oldVar.Value = newVar.Value;
+                    return;
+                }
         }
 
-        List<Param> paramCollection;
-        public List<Param> ParamCollection {
+        public List<NnTemplateData>? CollectionTemplate =>
+            projectData?.TemplateDatas?.ToList();
+
+        ObservableCollection<NnPlanData>? planCollection;
+        public ObservableCollection<NnPlanData> CollectionPlan {
             get {
-                return paramCollection;
-            }
-            set {
-                if (!paramCollection.SequenceEqual(value))
-                    paramCollection = value;
-            }
-        }
-        
-        void SetNewParamCollection(Dictionary<string, (string, string)> param)
-        {
-            paramCollection = new List<Param>();
-            foreach (var info in param)
-                paramCollection.Add(
-                    new Param(info.Key, info.Value.Item1, info.Value.Item2)
-                );
+                if (projectData == null)
+                    return (planCollection = new ObservableCollection<NnPlanData>());
+                if (planCollection == null)
+                    planCollection = new ObservableCollection<NnPlanData>();
 
-            OnPropertyChange("ParamCollection");
-        }
-
-        public void UpdateParamCollection(Param param)
-        {
-            var obj = paramCollection.FirstOrDefault(x => x.Name == param.Name);
-            obj.Value = param.Value;
-
-            OnPropertyChange("ParamCollection");
-        }
-
-        public class Task : INotifyPropertyChanged
-        {
-            public Task(
-                string name, 
-                string runningModule, 
-                string queuedModule, 
-                string status)
-            {
-                this.Name = name;
-                this.RunningModule = runningModule;
-                this.QueuedModule = queuedModule;
-                this.Status = status;
-            }
-
-            string name;
-            public string Name {
-                get {
-                    return name;
-                }
-                set {
-                    if (value != name) {
-                        name = value;
-                        OnPropertyChange("Name");
-                    }
-                }
-            }
-            string runningModule;
-            public string RunningModule {
-                get {
-                    return runningModule;
-                }
-                set {
-                    if (value != runningModule) {
-                        runningModule = value;
-                        OnPropertyChange("RunningModule");
-                    }
-                }
-            }
-            string queuedModule;
-            public string QueuedModule {
-                get {
-                    return queuedModule;
-                }
-                set {
-                    if (value != queuedModule) {
-                        queuedModule = value;
-                        OnPropertyChange("QueuedModule");
-                    }
-                }
-            }
-
-            string status;
-            public string Status {
-                get {
-                    return status;
-                }
-                set {
-                    if (value != status) {
-                        status = value;
-                        OnPropertyChange("Status");
-                    }
-                }
-            }
-
-            public void Update((string, string, string) updateData)
-            {
-                RunningModule = updateData.Item1;
-                QueuedModule = updateData.Item2;
-                Status = updateData.Item3;
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            void OnPropertyChange(string arg)
-            {
-                PropertyChanged?.Invoke(
-                    this, new PropertyChangedEventArgs(arg));
+                Update(planCollection, projectData.PlanDatas);
+                return planCollection;
             }
         }
 
-        ObservableCollection<Task> taskCollection;
-        public ObservableCollection<Task> TaskCollection {
+        ObservableCollection<NnTaskData>? taskCollection;
+        public ObservableCollection<NnTaskData> CollectionTask {
             get {
-                if (project == null)
-                    return null;
-
+                if ((projectData == null) || (SelectedPlan == null))
+                    return (taskCollection = new ObservableCollection<NnTaskData>());
                 if (taskCollection == null)
-                    taskCollection = new ObservableCollection<Task>();
+                    taskCollection = new ObservableCollection<NnTaskData>();
 
-                var newtaskStatus = project.GetTasks();
-
-                // 3-step update
-                // 1. Update
-                foreach (Task task in taskCollection)
-                    if (newtaskStatus.ContainsKey(task.Name))
-                        task.Update(newtaskStatus[task.Name]);
-
-                // 2. Remove
-                List<Task> removing =
-                    taskCollection
-                        .Where(x => !newtaskStatus.ContainsKey(x.Name)).ToList();
-                foreach (Task task in removing)
-                    taskCollection.Remove(task);
-
-                // 3. New
-                List<KeyValuePair<string, (string, string, string)>> adding =
-                    newtaskStatus
-                        .Where(
-                            x => taskCollection
-                                .FirstOrDefault(
-                                    y => x.Key == y.Name
-                                ) == null
-                        ).ToList();
-
-                foreach (var task in adding)
-                    taskCollection.Add(
-                        new Task(
-                            task.Key,
-                            task.Value.Item1,
-                            task.Value.Item2,
-                            task.Value.Item3
-                        )
-                    );
-                
+                Update(taskCollection, SelectedPlan.TaskDatas);
                 return taskCollection;
             }
-            private set {}
         }
 
-        Task GetTaskByName(string id)
-        {
-            //foreach (var item in TaskCollection)
-            //    if (item.Name == id)
-            //        return item;
-            //return null;
+        public List<ModuleType>? CollectionModule =>
+            projectData?.Modules?.ToList();
 
-            return taskCollection.FirstOrDefault(x => x.Name == id);
+        public string? TextSchedularStatus {
+            get {
+                if (projectData == null) return null;
+                return projectData.IsSchedularRunning ? "Active" : "Inactive";
+            }
         }
 
-        Task selectedTask;
-        public Task SelectedTask {
-            get { return selectedTask; }
-            set {
-                if (value != selectedTask) {
-                    selectedTask = value;
-                    OnPropertyChange("SelectedTask");
-                    OnPropertyChange("ModuleCollection");
+        public string TextEnqueueModuleButton {
+            get {
+                switch (SelectionMode)
+                {
+                    case SelectionModes.Plan:
+                        return "Enqueue (Plan)";
+
+                    case SelectionModes.Task:
+                        return "Enqueue (Task)";
+
+                    default:
+                        return "Enqueue ...";
                 }
             }
         }
 
-        public List<string> ModuleCollection {
+        public string TextDequeueModuleButton {
             get {
-                if ((project != null) && selectedTask != null)
-                    return project.GetModules(selectedTask.Name);
-                else
-                    return null;
-            }
-        }
+                switch (SelectionMode) {
+                    case SelectionModes.Plan:
+                        return "Clear (Plan)";
 
-        string selectedModuleId;
-        public string SelectedModuleId {
-            get { return selectedModuleId; }
-            set {
-                if (value != selectedModuleId) {
-                    selectedModuleId = value;
-                    OnPropertyChange("SelectedModuleId");
+                    case SelectionModes.Task:
+                        return "Clear (Task)";
+
+                    default:
+                        return "Clear  ...";
                 }
             }
         }
 
-        public string SchedularStatus {
-            get {
-                if (project == null)
-                    return "";
-
-                if (project.IsSchedularRunning())
-                    return "Active";
-                else
-                    return "Inactive";
-            }
-        }
-
-        public string LogText {
-            get {
-                return project?.Log;
-            }
-        }
+        //public string TextLog =>
+        //    projectData?.Log ?? "";
     }
 }

@@ -1,275 +1,312 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 using NnManager;
 
+#nullable enable
+
 namespace NnManagerGUI.ViewModel
 {
+    using NnPlanData = NnProjectData.NnPlanData;
+    using NnTaskData = NnProjectData.NnTaskData;
+    using NnTemplateData = NnProjectData.NnTemplateData;
+
     partial class ProjectViewModel
     {
         #region common_logic
 
-        bool IsProjectLoaded()
-        {
-            return project != null;
-        }
+        bool IsProjectLoaded() => projectData != null;
 
-        bool IsQueueRunning()
+        //bool IsQueueRunning() => projectData?.IsSchedularRunning ?? false;
+
+        void ResetSelectionAndCollections()
         {
-            if (!IsProjectLoaded()) return false;
-            return project.IsSchedularRunning();
+            SelectedTemplate = null;
+            SelectedModule = null;
+            SelectedPlan = null;
+            SelectedTask = null;
+            SelectionMode = null;
+
+            planCollection = null;
+            taskCollection = null;
         }
 
         #endregion
 
-        public ICommand NewProject {
-            get {
-                return new RelayCommand(
-                    NewProjectExecute,
-                    //() => !IsProjectLoaded()
-                    () => true
-                );
-            }
-        }
-
+        public ICommand CommandNewProject => 
+            new RelayCommand(NewProjectExecute, () => true);
         void NewProjectExecute()
         {
-            //string path = UtilGUI.OpenFileDialogToGetFolder();
-            //if (path == null) return;
-
-            string path = UtilGUI.OpenFileDialogToGetPath();
+            string? path = UtilGUI.OpenFileDialogToGetPath();
             if (path == null) return;
 
-            Project newProject = Project.NewProject(path);
-            if (newProject == null) return;
-
-            project = newProject;
-            project.PropertyChanged += OnProjectPropertyChange;
-
-            ResetSelections();
-            OnProjectPropertyChange();
-        }
-
-        public ICommand LoadProject {
-            get {
-                return new RelayCommand(
-                    LoadProjectExecute,
-                    //() => !IsProjectLoaded()
-                    () => true
-                );
-            }
-        }
-
-        void LoadProjectExecute()
-        {
-            string path = UtilGUI.OpenFileDialogToGetFolder();
-            if (path == null) return;
-
-            //string path = UtilGUI.OpenFileDialogToGetPath(true);
-
-            Project newProject = Project.LoadProject(path);
-            if (newProject == null) return;
-
-            project = newProject;
-            project.PropertyChanged += OnProjectPropertyChange;
-
-            ResetSelections();
-            OnProjectPropertyChange();
-        }
-
-        public ICommand SaveProject {
-            get {
-                return new RelayCommand(
-                    SaveProjectExecute,
-                    IsProjectLoaded);
-            }
-        }
-
-        void SaveProjectExecute()
-        {
-            project.Save();
-        }
-
-        public ICommand AddTemplate {
-            get {
-                return new RelayCommand(
-                    AddTemplateExecute,
-                    IsProjectLoaded);
-            }
-        }
-
-        void AddTemplateExecute()
-        {
-            bool fileOpened;
-            string id, content;
-            (fileOpened, id, content) =
-                UtilGUI.OpenFileDialogToGetNameAndContent(
-                    "NN++ template files (*.nnptmpl)|*.nnptmpl|All files (*.*)|*.*"
-                );
-
-            if (fileOpened == false) return;
-
-            if (project.AddTemplate(id, content)) {
-                OnPropertyChange("TemplateCollection");
-                SelectedTemplateId = id;
-            }
-        }
-
-        public ICommand DeleteTemplate {
-            get {
-                return new RelayCommand(
-                    DeleteTemplateExecute,
-                    () => IsProjectLoaded() && (SelectedTemplateId != null));
-            }
-        }
-
-        void DeleteTemplateExecute()
-        {
-            if (project.DeleteTemplate(SelectedTemplateId)) {
-                SelectedTemplateId = null;
-                OnPropertyChange("TemplateCollection");
-            }
-        }
-
-        public ICommand AddTask {
-            get {
-                return new RelayCommand(
-                    AddTaskExecute,
-                    () => IsProjectLoaded() && (SelectedTemplateId != null));
-            }
-        }
-
-        void AddTaskExecute()
-        {
-            Dictionary<string, (string, string)> paramDict =
-                new Dictionary<string, (string, string)>();
-
-            foreach (var param in paramCollection) {
-                if ((param.Value != null) || (param.DefaultValue != null))
-                    paramDict[param.Name] = (param.Value, param.DefaultValue);
+            if (projectData?.IsBusy ?? false) {
+                if (UtilGUI.WarnAndDecide("Current project is busy.\nTerminate and continue?"))
+                    projectData?.Terminate();
                 else
                     return;
             }
 
-            string id = project.AddTask(
-                SelectedTemplateId,
-                paramDict);
+            projectData = NnProjectData.New(path);
+            if (projectData == null) {
+                UtilGUI.Error("Error!");
+                return;
+            }
 
-            if (id != null) {
-                OnPropertyChange("TaskCollection");
-                SelectedTask = GetTaskByName(id);
-            }
-        }
-        public ICommand DeleteTask {
-            get {
-                return new RelayCommand(
-                    DeleteTaskExecute,
-                    () => IsProjectLoaded() && (SelectedTask != null));
-            }
+            projectData.PropertyChanged += OnComponentPropertyChanged;
+
+            ResetSelectionAndCollections();
+            OnPropertyChanged("");
         }
 
+        public ICommand CommandLoadProject =>
+            new RelayCommand(LoadProjectExecute, () => true);
+        void LoadProjectExecute()
+        {
+            string? path = UtilGUI.OpenFileDialogToGetFolder();
+            if (path == null) return;
+
+            if (projectData?.IsBusy ?? false) {
+                if (UtilGUI.WarnAndDecide("Current project is busy.\nTerminate and continue?"))
+                    projectData?.Terminate();
+                else
+                    return;
+            }
+
+            projectData = NnProjectData.Load(path);
+            if (projectData == null) {
+                UtilGUI.Error("Error!");
+                return;
+            }
+
+            projectData.PropertyChanged += OnComponentPropertyChanged;
+
+            ResetSelectionAndCollections();
+            OnPropertyChanged("");
+        }
+
+        //public ICommand CommandSaveProject =>
+        //    new RelayCommand(() => projectData?.Save(), IsProjectLoaded);
+
+        public ICommand CommandAddTemplate => 
+            new RelayCommand(AddTemplateExecute, IsProjectLoaded);
+        void AddTemplateExecute()
+        {
+            var (fileOpened, id, content) =
+                UtilGUI.OpenFileDialogToGetNameAndContent(
+                    "NN++ template files (*.nnptmpl)|*.nnptmpl|All files (*.*)|*.*",
+                    "Choose a template..."
+                );
+
+            if (fileOpened == false) return;
+
+            NnTemplateData? temp;
+            if ((temp = projectData?.AddTemplate(id, content)) != null) {
+                SelectedTemplate = temp;
+                SelectionMode = SelectionModes.Template;
+            }
+        }
+
+        public ICommand CommandDeleteTemplate => 
+            new RelayCommand(
+                DeleteTemplateExecute, 
+                () => IsProjectLoaded() && (selectedTemplate != null));
+        void DeleteTemplateExecute()
+        {
+            if (selectedTemplate == null) return;
+            if (projectData?.DeleteTemplate(selectedTemplate) ?? false) {
+                //selectedTemplateId = null;
+            }
+        }
+
+        //public ICommand CommandAddPlanFromFile =>
+        //    new RelayCommand(
+        //        AddPlanFromFileExecute,
+        //        () => IsProjectLoaded() && (selectedTemplateId != null));
+        //void AddPlanFromFileExecute()
+        //{
+        //    if (selectedTemplateId == null) return;
+
+        //    var result =
+        //    UtilGUI.OpenFileDialogToGetNameAndContent(
+        //        "NN++ parameter files (*.nnpparam)|*.nnpparam|All files (*.*)|*.*",
+        //        "Choose a parameter file..."
+        //    );
+
+        //    if (result.success == false) return;
+
+        //    NnPlanData? plan;
+        //    if ((plan = projectData?.AddPlan(
+        //            $"{selectedTemplateId} - {result.name}",
+        //            selectedTemplateId,
+        //            result.content
+        //        )) != null)
+        //    {
+        //        SelectedPlan = plan;
+        //        SelectionMode = SelectionModes.Plan;
+        //    }
+        //}
+
+        public ICommand CommandAddPlanEmpty =>
+            new RelayCommand(
+                AddPlanEmptyExecute,
+                () => IsProjectLoaded() && (selectedTemplate != null));
+        void AddPlanEmptyExecute()
+        {
+            if (selectedTemplate == null) return;
+
+            NnPlanData? plan;
+            if ((plan = projectData?.AddPlan(
+                    $"{selectedTemplate.Id}",
+                    selectedTemplate
+                )) != null)
+            {
+                SelectedPlan = plan;
+                SelectionMode = SelectionModes.Plan;
+            }
+        }
+
+        public ICommand CommandDeletePlan =>
+            new RelayCommand(
+                DeletePlanExecute,
+                () => IsProjectLoaded() && (selectedPlan != null));
+        void DeletePlanExecute()
+        {
+            if (selectedPlan == null) return;
+
+            if (projectData?.DeletePlan(selectedPlan) ?? false)
+            {
+                SelectedPlan = null;
+            }
+        }
+
+        public ICommand CommandAddTask =>
+            new RelayCommand(
+                AddTaskExecute,
+                () => 
+                    IsProjectLoaded() && 
+                    (selectedPlan != null) && 
+                    (param != null) && 
+                    (SelectionMode != SelectionModes.Template)
+            );
+        void AddTaskExecute()
+        {
+            if ((param == null)) return;
+            NnTaskData? task;
+            if ((task = selectedPlan?.AddTask(param)) != null) {
+                SelectedTask = task;
+                SelectionMode = SelectionModes.Task;
+            }
+        }
+
+        public ICommand CommandAddTaskFromFile =>
+            new RelayCommand(
+                AddTaskFromFileExecute,
+                () =>
+                    IsProjectLoaded() &&
+                    (selectedPlan != null) &&
+                    (SelectionMode != SelectionModes.Template)
+            );
+        void AddTaskFromFileExecute()
+        {
+            var (fileOpened, _, content) =
+                UtilGUI.OpenFileDialogToGetNameAndContent(
+                    "NN++ template files (*.nnptmpl)|*.nnptmpl|All files (*.*)|*.*",
+                    "Choose a parameter file..."
+                );
+
+            if (fileOpened == false)
+                return;
+
+            selectedPlan?.AddTaskFromFile(content);
+            SelectionMode = SelectionModes.Plan;
+        }
+
+        public ICommand CommandDeleteTask => 
+            new RelayCommand(
+                DeleteTaskExecute,
+                () => IsProjectLoaded() && (selectedPlan != null) && (selectedTask != null));
         void DeleteTaskExecute()
         {
-            if (project.DeleteTask(SelectedTask.Name)) {
+            if ((selectedTask == null)) return;
+            if (selectedPlan?.DeleteTask(selectedTask) ?? false) {
                 SelectedTask = null;
-                OnPropertyChange("TaskCollection");
             }
         }
 
-        public ICommand StartQueue {
-            get {
-                return new RelayCommand(
-                    StartQueueExecute,
-                    () => IsProjectLoaded() && !IsQueueRunning());
-            }
-        }
+        //public ICommand StartQueue => 
+        //    new RelayCommand(
+        //        () => projectData?.StartScheduler(),
+        //        () => IsProjectLoaded() && !IsQueueRunning());
 
-        void StartQueueExecute()
-        {
-            project.StartScheduler();
-            OnPropertyChange("SchedularStatus");
-        }
+        //public ICommand StopQueue =>
+        //    new RelayCommand(
+        //        () => projectData?.StopScheduler(),
+        //        () => IsProjectLoaded() && IsQueueRunning());
 
-        public ICommand StopQueue {
-            get {
-                return new RelayCommand(
-                    StopQueueExecute,
-                    () => IsProjectLoaded() && IsQueueRunning());
-            }
-        }
+        public ICommand CommandToggleQueue =>
+            new RelayCommand(
+                () => projectData?.ToggleScheduler(),
+                () => IsProjectLoaded());
 
-        void StopQueueExecute()
-        {
-            project.StopScheduler();
-            OnPropertyChange("SchedularStatus");
-        }
-
-        public ICommand EnqueueModule {
-            get {
-                return new RelayCommand(
-                    EnqueueModuleExecute,
-                    () => 
-                        IsProjectLoaded() && 
-                        (SelectedTask != null) && 
-                        (SelectedModuleId != null));
-            }
-        }
-
+        public ICommand CommandEnqueueModule =>
+            new RelayCommand(
+                EnqueueModuleExecute,
+                () =>
+                    IsProjectLoaded() &&
+                    (
+                        ((selectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
+                        ((selectedTask != null) && SelectionMode == SelectionModes.Task)
+                    ) &&
+                    (module != null));
         void EnqueueModuleExecute()
         {
-            project.EnqueueTaskWithModule(SelectedTask.Name, SelectedModuleId);
-            OnPropertyChange("TaskCollection");
-        }
+            if (module == null) return;
 
-        public ICommand ClearModules {
-            get {
-                return new RelayCommand(
-                    ClearModulesExecute,
-                    () =>
-                        IsProjectLoaded() &&
-                        (SelectedTask != null)
-                );
+            switch (SelectionMode)
+            {
+                case SelectionModes.Plan:
+                    if (selectedPlan == null) return;
+                    selectedPlan.QueueModule(module);
+                    break;
+
+                case SelectionModes.Task:
+                    if (selectedPlan == null) return;
+                    if (selectedTask == null) return;
+                    selectedTask.QueueModule(module);
+                    break;
+
+                default:
+                    return;
             }
         }
 
+        public ICommand CommandClearModules => 
+            new RelayCommand(
+                ClearModulesExecute,
+                () =>
+                    IsProjectLoaded() &&
+                    (
+                        ((selectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
+                        ((selectedTask != null) && SelectionMode == SelectionModes.Task)
+                    ));
         void ClearModulesExecute()
         {
-            project.ClearModules(SelectedTask.Name);
-            OnPropertyChange("TaskCollection");
-        }
+            switch (SelectionMode)
+            {
+                case SelectionModes.Plan:
+                    if (selectedPlan == null) return;
+                    selectedPlan.ClearModules();
+                    break;
 
-        public ICommand LoadParamFromTask {
-            get {
-                return new RelayCommand(
-                    LoadParamFromTaskExecute,
-                    () => {
-                        if (SelectedTask == null)
-                            return false;
-                        else
-                            return IsProjectLoaded();
-                    }
-                );
+                case SelectionModes.Task:
+                    if (selectedPlan == null) return;
+                    if (selectedTask == null) return;
+                    selectedTask.ClearModules();
+                    break;
+
+                default:
+                    return;
             }
-        }
-
-        void LoadParamFromTaskExecute()
-        {
-            SelectedTemplateId =
-                (string)
-                project.GetTaskInfo(selectedTask.Name)["templateId"];
-
-            SetNewParamCollection(
-                (Dictionary<string, (string, string)>)
-                project.GetTaskInfo(selectedTask.Name)["param"]
-            );
-
-            OnPropertyChange("ParamCollection");
         }
     }
 }
