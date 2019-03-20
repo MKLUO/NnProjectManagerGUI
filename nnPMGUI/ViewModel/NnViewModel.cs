@@ -72,19 +72,29 @@ namespace NnManagerGUI.ViewModel
 
                 {"SelectedTask", new List<string>{
                     "CollectionParam",
-                    "CollectionModule",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
-
-                {"SelectedModule", new List<string>{
-                    "Module",
+                    "CollectionModuleQueue",
                     "TextEnqueueModuleButton",
                     "TextDequeueModuleButton"}},
 
                 {"SelectionMode", new List<string>{
                     "CollectionParam",
                     "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}}
+                    "TextDequeueModuleButton"}},
+
+
+
+                {"SelectedModule", new List<string>{
+                    "Module",
+                    "TextEnqueueModuleButton",
+                    "TextDequeueModuleButton"}},
+
+                {"SelectedModuleQueue", new List<string>{
+                    "Module",
+                    "TextEnqueueModuleButton",
+                    "TextDequeueModuleButton"}},
+
+                {"ModuleSelectionMode", new List<string>{
+                    "Module"}}
             };
 
         public bool IsBusy()

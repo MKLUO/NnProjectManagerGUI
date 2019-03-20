@@ -34,6 +34,10 @@
         <Label Content="Tasks in plan (?)" 
                ToolTip="Select a plan to view its tasks."
                HorizontalAlignment="Left" Margin="215,255,0,0" VerticalAlignment="Top"/>
+        <Label Content="Module Queue" HorizontalAlignment="Left" 
+            Margin="460,255,0,0" VerticalAlignment="Top"/>
+        <Label Content="Module Option" HorizontalAlignment="Left" 
+            Margin="665,25,0,0" VerticalAlignment="Top"/>
 
         <Button Command="{Binding CommandAddTemplate}"
                 HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Width="165" Height="25">
@@ -68,11 +72,11 @@
             <TextBlock><Run Text="X"/></TextBlock>
         </Button>
         <Button Command="{Binding CommandEnqueueModule}"
-                Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="460,255,0,0" VerticalAlignment="Top" Width="100" Height="20"/>
+                Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="460,225,0,0" VerticalAlignment="Top" Width="100" Height="25"/>
         <Button Command="{Binding CommandClearModules}"
-                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="565,255,0,0" VerticalAlignment="Top" Width="95" Height="20"/>
+                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="565,225,0,0" VerticalAlignment="Top" Width="95" Height="25"/>
         <Button Command="{Binding CommandToggleQueue}"
-                Content="{Binding TextSchedularStatus}" HorizontalAlignment="Left" Margin="360,255,0,0" VerticalAlignment="Top" Width="95" Height="20"/>
+                Content="{Binding TextSchedularStatus}" HorizontalAlignment="Left" Margin="318,255,0,0" VerticalAlignment="Top" Width="95" Height="20"/>
 
         <ListBox ItemsSource="{Binding CollectionTemplate, Mode=OneWay}"
                  SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
@@ -88,7 +92,18 @@
         </ListBox>
         <ListBox ItemsSource="{Binding CollectionModule, Mode=OneWay}"
                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}"
-                 HorizontalAlignment="Left" Height="200" Margin="460,50,0,0" VerticalAlignment="Top" Width="200"/>
+                 GotFocus="Modules_GotFocus"
+                 HorizontalAlignment="Left" Height="170" Margin="460,50,0,0" VerticalAlignment="Top" Width="200"/>
+        <ListBox ItemsSource="{Binding CollectionModuleQueue, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedModuleQueue, Mode=TwoWay}"
+                 GotFocus="ModuleQueue_GotFocus"
+                 HorizontalAlignment="Left" Height="270" Margin="460,280,0,0" VerticalAlignment="Top" Width="200">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Tag}" ToolTip="{Binding Tag}" TextTrimming="CharacterEllipsis"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
         <DataGrid ItemsSource="{Binding CollectionPlan, Mode=OneWay}"
                   SelectedItem="{Binding SelectedPlan, Mode=TwoWay}"                 
@@ -197,7 +212,7 @@
                   GotFocus="Tasks_GotFocus"
                   IsReadOnly="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="270" Margin="215,280,0,0" VerticalAlignment="Top" Width="445">
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="270" Margin="215,280,0,0" VerticalAlignment="Top" Width="240">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Id" Width="1*">
                     <DataGridTemplateColumn.CellTemplate>
@@ -207,7 +222,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Modules" Width="1*">
+                <!--<DataGridTemplateColumn Header="Modules" Width="1*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock TextTrimming="CharacterEllipsis">
@@ -218,15 +233,15 @@
                             </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Completed" Width="1*">
+                </DataGridTemplateColumn>-->
+                <!--<DataGridTemplateColumn Header="Completed" Width="1*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ModuleDone, Mode=OneWay}" 
                                        ToolTip="{Binding ModuleDone, Mode=OneWay}" TextTrimming="CharacterEllipsis"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                </DataGridTemplateColumn>-->
                 <DataGridTemplateColumn Header="Status" Width="2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

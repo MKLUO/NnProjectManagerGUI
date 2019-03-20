@@ -6,6 +6,7 @@ namespace NnManagerGUI.View
 {
     using Variable = NnManager.NnProjectData.Variable;
     using SelectionModes = ProjectViewModel.SelectionModes;
+    using ModuleSelectionModes = ProjectViewModel.ModuleSelectionModes;
 
     /// <summary>
     /// Interaction logic for PrototypeView.xaml
@@ -37,6 +38,15 @@ namespace NnManagerGUI.View
 
         private void Tasks_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
             (this.DataContext as ProjectViewModel).SelectionMode = SelectionModes.Task;
+
+        private void Modules_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+            (this.DataContext as ProjectViewModel).ModuleSelectionMode = 
+                ModuleSelectionModes.Module;
+
+        private void ModuleQueue_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+            (this.DataContext as ProjectViewModel).ModuleSelectionMode = 
+                ModuleSelectionModes.ModuleQueue;
+
 
 
         //private void ParamDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)

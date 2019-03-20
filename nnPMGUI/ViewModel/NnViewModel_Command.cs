@@ -16,6 +16,8 @@ namespace NnManagerGUI.ViewModel
 
         bool IsProjectLoaded() => projectData != null;
 
+        bool IsSchedulerOff() => ! (projectData?.IsSchedularRunning ?? false);
+
         //bool IsQueueRunning() => projectData?.IsSchedularRunning ?? false;
 
         void ResetSelectionAndCollections()
@@ -149,7 +151,7 @@ namespace NnManagerGUI.ViewModel
         public ICommand CommandAddPlanEmpty =>
             new RelayCommand(
                 AddPlanEmptyExecute,
-                () => IsProjectLoaded() && (selectedTemplate != null));
+                () => IsSchedulerOff() && IsProjectLoaded() && (selectedTemplate != null));
         void AddPlanEmptyExecute()
         {
             if (selectedTemplate == null) return;
@@ -168,7 +170,7 @@ namespace NnManagerGUI.ViewModel
         public ICommand CommandDeletePlan =>
             new RelayCommand(
                 DeletePlanExecute,
-                () => IsProjectLoaded() && (selectedPlan != null));
+                () => IsSchedulerOff() && IsProjectLoaded() && (selectedPlan != null));
         void DeletePlanExecute()
         {
             if (selectedPlan == null) return;
@@ -182,8 +184,8 @@ namespace NnManagerGUI.ViewModel
         public ICommand CommandAddTask =>
             new RelayCommand(
                 AddTaskExecute,
-                () => 
-                    IsProjectLoaded() && 
+                () =>
+                    IsSchedulerOff() && IsProjectLoaded() && 
                     (selectedPlan != null) && 
                     (param != null) && 
                     (SelectionMode != SelectionModes.Template)
@@ -202,7 +204,7 @@ namespace NnManagerGUI.ViewModel
             new RelayCommand(
                 AddTaskFromFileExecute,
                 () =>
-                    IsProjectLoaded() &&
+                    IsSchedulerOff() && IsProjectLoaded() &&
                     (selectedPlan != null) &&
                     (SelectionMode != SelectionModes.Template)
             );
@@ -224,7 +226,7 @@ namespace NnManagerGUI.ViewModel
         public ICommand CommandDeleteTask => 
             new RelayCommand(
                 DeleteTaskExecute,
-                () => IsProjectLoaded() && (selectedPlan != null) && (selectedTask != null));
+                () => IsSchedulerOff() && IsProjectLoaded() && (selectedPlan != null) && (selectedTask != null));
         void DeleteTaskExecute()
         {
             if ((selectedTask == null)) return;
@@ -252,7 +254,7 @@ namespace NnManagerGUI.ViewModel
             new RelayCommand(
                 EnqueueModuleExecute,
                 () =>
-                    IsProjectLoaded() &&
+                    IsSchedulerOff() && IsProjectLoaded() &&
                     (
                         ((selectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
                         ((selectedTask != null) && SelectionMode == SelectionModes.Task)
@@ -284,7 +286,7 @@ namespace NnManagerGUI.ViewModel
             new RelayCommand(
                 ClearModulesExecute,
                 () =>
-                    IsProjectLoaded() &&
+                    IsSchedulerOff() && IsProjectLoaded() &&
                     (
                         ((selectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
                         ((selectedTask != null) && SelectionMode == SelectionModes.Task)

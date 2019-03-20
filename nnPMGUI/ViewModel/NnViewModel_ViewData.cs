@@ -54,6 +54,17 @@ namespace NnManagerGUI.ViewModel
             }
         }
 
+        public enum SelectionModes{
+            Template,
+            Plan,
+            Task
+        }
+        SelectionModes? selectionMode;
+        public SelectionModes? SelectionMode {
+            get => selectionMode;
+            set => SetField(ref selectionMode, value);
+        }
+
         ModuleType? selectedModule;
         public ModuleType? SelectedModule {
             get =>
@@ -66,18 +77,23 @@ namespace NnManagerGUI.ViewModel
             set => SetField(ref selectedModule, value);
         }
 
-        public enum SelectionModes
-        {
-            Template,
-            Plan,
-            Task
+        NnModuleForm? selectedModuleQueue;
+        public NnModuleForm? SelectedModuleQueue {
+            get => selectedModuleQueue;
+            set => SetField(ref selectedModuleQueue, value);
         }
 
-        SelectionModes? selectionMode;
-        public SelectionModes? SelectionMode {
-            get => selectionMode;
-            set => SetField(ref selectionMode, value);
+        public enum ModuleSelectionModes
+        {
+            Module,
+            ModuleQueue
         }
+        ModuleSelectionModes? moduleSelectionMode;
+        public ModuleSelectionModes? ModuleSelectionMode {
+            get => moduleSelectionMode;
+            set => SetField(ref moduleSelectionMode, value);
+        }
+
 
         NnParamForm? param;
         public NnParamForm? CollectionParam {
@@ -128,10 +144,24 @@ namespace NnManagerGUI.ViewModel
             get {
                 if (projectData == null)
                     return (module = null);
-                if (selectedModule != null)
-                    return (module = new NnModuleForm(selectedModule ?? ModuleType.NnMain));
-                else
-                    return null;
+                if (ModuleSelectionMode == null)
+                    return (module = null);
+
+                switch (ModuleSelectionMode) {
+                    case ModuleSelectionModes.Module:
+                        if (SelectedModule == null)
+                            return null;
+                        return (module =
+                            new NnModuleForm(SelectedModule ?? ModuleType.NnMain));
+
+                    case ModuleSelectionModes.ModuleQueue:
+                        if (SelectedModuleQueue == null)
+                            return null;
+                        return (module = SelectedModuleQueue);
+
+                    default:
+                        return (module = null);
+                }
             }
         }
 
@@ -178,6 +208,12 @@ namespace NnManagerGUI.ViewModel
 
         public List<ModuleType>? CollectionModule =>
             projectData?.Modules?.ToList();
+
+        public ObservableCollection<NnModuleForm>? CollectionModuleQueue =>
+            selectedTask?.ModuleList != null ?
+                new ObservableCollection<NnModuleForm>(selectedTask?.ModuleList) :
+                null;
+            
 
         public string? TextSchedularStatus {
             get {
