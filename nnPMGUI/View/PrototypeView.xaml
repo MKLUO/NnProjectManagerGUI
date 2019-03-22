@@ -144,7 +144,7 @@
                   CanUserReorderColumns="False"
                   AutoGenerateColumns="False" HorizontalAlignment="Left" Height="111" Margin="10,280,0,0" VerticalAlignment="Top" Width="200">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
+                <DataGridTemplateColumn Header="Name" SortMemberPath="Name" CanUserSort="True" Width="0.4*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" 
@@ -179,7 +179,7 @@
                   CanUserReorderColumns="False"
                   AutoGenerateColumns="False" HorizontalAlignment="Left" Height="124" Margin="10,396,0,0" VerticalAlignment="Top" Width="200">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
+                <DataGridTemplateColumn Header="Name" SortMemberPath="Name" CanUserSort="True" Width="0.4*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" 
