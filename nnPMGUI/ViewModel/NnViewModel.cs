@@ -71,6 +71,7 @@ namespace NnManagerGUI.ViewModel
                     "TextDequeueModuleButton"} },
 
                 {"SelectedTask", new List<string>{
+                    "Module",
                     "CollectionParam",
                     "CollectionModuleQueue",
                     "TextEnqueueModuleButton",

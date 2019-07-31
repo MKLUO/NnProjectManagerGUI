@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
-
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Controls;
+using static NnManager.NnProjectData;
 using ProjectViewModel = NnManagerGUI.ViewModel.ProjectViewModel;
 
 namespace NnManagerGUI.View
@@ -46,6 +48,12 @@ namespace NnManagerGUI.View
         private void ModuleQueue_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
             (this.DataContext as ProjectViewModel).ModuleSelectionMode = 
                 ModuleSelectionModes.ModuleQueue;
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            (this.DataContext as ProjectViewModel).SelectedTasks = 
+                (sender as DataGrid).SelectedItems.Cast<NnTaskData>().ToList();
+        }
 
 
 

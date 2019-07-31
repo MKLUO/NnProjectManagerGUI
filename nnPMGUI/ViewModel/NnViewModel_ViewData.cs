@@ -35,13 +35,13 @@ namespace NnManagerGUI.ViewModel
         NnPlanData? selectedPlan;
         public NnPlanData? SelectedPlan {
             get =>
-                (selectedPlan == null) ? 
+                (selectedPlan == null) ?
                     null :
                     (selectedPlan = FindData(selectedPlan, planCollection));
             set {
                 SetField(ref selectedPlan, FindData(value, planCollection));
             }
-        }        
+        }
 
         NnTaskData? selectedTask;
         public NnTaskData? SelectedTask {
@@ -51,10 +51,12 @@ namespace NnManagerGUI.ViewModel
                     (selectedTask = FindData(selectedTask, taskCollection));
             set {
                 SetField(ref selectedTask, FindData(value, taskCollection));
+                if (value == null) SelectedTasks = null;
             }
         }
+        public IList<NnTaskData>? SelectedTasks;
 
-        public enum SelectionModes{
+        public enum SelectionModes {
             Template,
             Plan,
             Task
@@ -71,7 +73,7 @@ namespace NnManagerGUI.ViewModel
                 (selectedModule == null) ?
                     null :
                     (CollectionModule?.Contains(selectedModule ?? throw new Exception()) ?? false) ?
-                        selectedModule : 
+                        selectedModule :
                         null;
 
             set => SetField(ref selectedModule, value);
@@ -113,13 +115,13 @@ namespace NnManagerGUI.ViewModel
                     case SelectionModes.Plan:
                         if (SelectedPlan == null) return null;
                         return (param =
-                            SelectedPlan.ParamForm());
+                            SelectedPlan.GetParamForm());
 
                     case SelectionModes.Task:
                         if (SelectedPlan == null) return null;
                         if (SelectedTask == null) return null;
                         return (param =
-                            SelectedPlan.ParamForm(SelectedTask));
+                            SelectedPlan.GetTaskParamForm(SelectedTask));
 
                     default:
                         return (param = null);
@@ -132,7 +134,13 @@ namespace NnManagerGUI.ViewModel
             if (param == null)
                 return;
 
-            foreach (Variable oldVar in param.Consts.Concat(param.Variables))
+            foreach (Variable oldVar in param.CommonVariables)
+                if (oldVar.Name == newVar.Name) {
+                    oldVar.Value = newVar.Value;
+                    return;
+                }
+
+            foreach (Variable oldVar in param.Variables)
                 if (oldVar.Name == newVar.Name) {
                     oldVar.Value = newVar.Value;
                     return;
@@ -151,8 +159,9 @@ namespace NnManagerGUI.ViewModel
                     case ModuleSelectionModes.Module:
                         if (SelectedModule == null)
                             return null;
-                        return (module =
-                            new NnModuleForm(SelectedModule ?? ModuleType.NnMain));
+                        if (SelectedTasks?.Count > 1)
+                            return null;
+                        return (module = SelectedTask?.GetModuleForm(SelectedModule ?? ModuleType.NnMain));
 
                     case ModuleSelectionModes.ModuleQueue:
                         if (SelectedModuleQueue == null)
@@ -209,34 +218,41 @@ namespace NnManagerGUI.ViewModel
         public List<ModuleType>? CollectionModule =>
             projectData?.Modules?.ToList();
 
-        public ObservableCollection<NnModuleForm>? CollectionModuleQueue =>
-            selectedTask?.ModuleList != null ?
-                new ObservableCollection<NnModuleForm>(selectedTask?.ModuleList) :
-                null;
+        public ObservableCollection<NnModuleForm>? CollectionModuleQueue {
+            get {
+                if ((SelectedTask?.ModuleList != null) && !(SelectedTasks?.Count > 1))
+                    return new ObservableCollection<NnModuleForm>(SelectedTask?.ModuleList);
+                else return null;
+            }
+        }
             
 
         public string? TextSchedularStatus {
             get {
                 if (projectData == null) return null;
-                return projectData.IsSchedularRunning ? "Active" : "Inactive";
+                return projectData.IsSchedularRunning ? "Schedular: ON" : "Schedular: OFF";
             }
         }
 
         public string TextEnqueueModuleButton {
             get {
-                switch (SelectionMode)
-                {
-                    case SelectionModes.Plan:
-                        return "Enqueue (Plan)";
+                //switch (SelectionMode)
+                //{
+                //    case SelectionModes.Plan:
+                //        return "Enqueue (Plan)";
 
-                    case SelectionModes.Task:
-                        return "Enqueue (Task)";
+                //    case SelectionModes.Task:
+                //        return "Enqueue (Task)";
 
-                    default:
-                        return "Enqueue ...";
-                }
+                //    default:
+                //        return "Enqueue ...";
+                //}
+
+                return "Enqueue";
             }
         }
+
+        public string TextEnqueueModulePadButton => "Pad";
 
         public string TextDequeueModuleButton {
             get {
