@@ -368,13 +368,13 @@ namespace NnManagerGUI.ViewModel
         }
 
         // FIXME: HACK!!!!
-        public ICommand CommandGenerateSomeReport0701 =>
+        public ICommand CommandGenerateSomeReport =>
             new RelayCommand(
-                GenerateSomeReport0701,
+                GenerateSomeReport,
                 () => IsSchedulerOff() && IsProjectLoaded() && (selectedPlan != null));
-        void GenerateSomeReport0701()
+        void GenerateSomeReport()
         {
-            selectedPlan?.GenerateSomeReport0701();
+            selectedPlan?.GenerateSomeReport();
         }
 
         //public ICommand CommandGenerateBReport0323 =>

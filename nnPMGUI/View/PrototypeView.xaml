@@ -85,10 +85,10 @@
                 Content="Launch" HorizontalAlignment="Left" Margin="422,525,0,0" VerticalAlignment="Top" Width="70                " Height="25"/>
         <Button Command="{Binding CommandTerminate}"
             Content="Terminate" HorizontalAlignment="Left" Margin="497,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
-        <!--<Button Command="{Binding CommandGenerateSomeReport0701}" 
+        <Button Command="{Binding CommandGenerateSomeReport}" 
             HorizontalAlignment="Left" Margin="777,427,0,0" VerticalAlignment="Top" Width="80" Height="25">
             <TextBlock><Run Text="Report"/></TextBlock>
-        </Button>-->
+        </Button>
         <!--<Button Command="{Binding CommandGenerateBReport0323}" 
             HorizontalAlignment="Left" Margin="777,457,0,0" VerticalAlignment="Top" Width="80" Height="25">
             <TextBlock><Run Text="B Report"/></TextBlock>
