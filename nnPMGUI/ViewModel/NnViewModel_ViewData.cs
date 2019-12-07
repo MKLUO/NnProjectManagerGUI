@@ -3,241 +3,235 @@ using System.Linq;
 
 using System.Collections.ObjectModel;
 
-using NnManager;
 using System;
 
-#nullable enable
+using NNMCore.View;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+using NNMCore;
 
-namespace NnManagerGUI.ViewModel
-{
-    using NnParamForm = NnProjectData.NnParamForm;
-    using NnModuleForm = NnProjectData.NnModuleForm;
-    using ModuleType = NnManager.ModuleType;
+namespace NnManagerGUI.ViewModel {
+    //using ModuleType = NNMCore.NNModuleType;
 
-    using Variable = NnProjectData.Variable;
-    using NnPlanData = NnProjectData.NnPlanData;
-    using NnTaskData = NnProjectData.NnTaskData;
-    using NnTemplateData = NnProjectData.NnTemplateData;
+    partial class ProjectViewModel {
 
-    partial class ProjectViewModel
-    {
-        NnTemplateData? selectedTemplate;
-        public NnTemplateData? SelectedTemplate {
-            get =>
-                (selectedTemplate == null) ?
-                    null :
-                    (selectedTemplate = FindData(selectedTemplate, CollectionTemplate));
-            set {
-                SetField(ref selectedTemplate, FindData(value, CollectionTemplate));
-            }
-        }
-
-        NnPlanData? selectedPlan;
-        public NnPlanData? SelectedPlan {
-            get =>
-                (selectedPlan == null) ?
-                    null :
-                    (selectedPlan = FindData(selectedPlan, planCollection));
-            set {
-                SetField(ref selectedPlan, FindData(value, planCollection));
-            }
-        }
-
-        NnTaskData? selectedTask;
-        public NnTaskData? SelectedTask {
-            get =>
-                (selectedTask == null) ?
-                    null :
-                    (selectedTask = FindData(selectedTask, taskCollection));
-            set {
-                SetField(ref selectedTask, FindData(value, taskCollection));
-                if (value == null) SelectedTasks = null;
-            }
-        }
-        public IList<NnTaskData>? SelectedTasks;
+        #region Selection
 
         public enum SelectionModes {
+            None,
             Template,
             Plan,
             Task
         }
-        SelectionModes? selectionMode;
-        public SelectionModes? SelectionMode {
+        SelectionModes selectionMode = SelectionModes.None;
+        public SelectionModes SelectionMode {
             get => selectionMode;
             set => SetField(ref selectionMode, value);
         }
 
-        ModuleType? selectedModule;
-        public ModuleType? SelectedModule {
-            get =>
-                (selectedModule == null) ?
-                    null :
-                    (CollectionModule?.Contains(selectedModule ?? throw new Exception()) ?? false) ?
-                        selectedModule :
-                        null;
 
-            set => SetField(ref selectedModule, value);
-        }
-
-        NnModuleForm? selectedModuleQueue;
-        public NnModuleForm? SelectedModuleQueue {
-            get => selectedModuleQueue;
-            set => SetField(ref selectedModuleQueue, value);
-        }
-
-        public enum ModuleSelectionModes
-        {
+        public enum ModuleSelectionModes {
+            None,
             Module,
             ModuleQueue
         }
-        ModuleSelectionModes? moduleSelectionMode;
-        public ModuleSelectionModes? ModuleSelectionMode {
+        ModuleSelectionModes moduleSelectionMode = ModuleSelectionModes.None;
+        public ModuleSelectionModes ModuleSelectionMode {
             get => moduleSelectionMode;
             set => SetField(ref moduleSelectionMode, value);
         }
 
+        IEntry selectedTemplate = new NullEntry();
+        public IEntry SelectedTemplate {
+            get => FindData(selectedTemplate, collectionTemplate);
+            set {
+                SetField(ref selectedTemplate, FindData(value, collectionTemplate));
+                if (!selectedTemplate.IsNull())
+                    SelectionMode = SelectionModes.Template;
+            }
+        }
 
-        NnParamForm? param;
-        public NnParamForm? CollectionParam {
+        IEntry selectedPlan = new NullEntry();
+        public IEntry SelectedPlan {
+            get => FindData(selectedPlan, collectionPlan);
+            set {
+                SetField(ref selectedPlan, FindData(value, collectionPlan));
+                if (!selectedPlan.IsNull())
+                    SelectionMode = SelectionModes.Plan;
+            }
+        }
+
+        IEntry selectedTask = new NullEntry();
+        public IEntry SelectedTask {
+            get => FindData(selectedTask, collectionTask);
+            set {
+                SetField(ref selectedTask, FindData(value, collectionTask));
+                if (!selectedTask.IsNull())
+                    SelectionMode = SelectionModes.Task;
+            }
+        }
+        public IList<IEntry>? SelectedTasks; // TODO: ?
+
+
+        IEntry selectedModuleInfo = new NullEntry();
+        public IEntry SelectedModuleInfo {
+            get => FindData(selectedModuleInfo, collectionModuleInfo);
+            set => SetField(ref selectedModuleInfo, FindData(value, collectionModuleInfo));
+        }
+
+        IEntry selectedModule = new NullEntry();
+        public IEntry SelectedModule {
+            get => FindData(selectedModule, collectionModule);
+            set => SetField(ref selectedModule, FindData(value, collectionModule));
+        }
+
+        #endregion
+
+        #region Collection
+
+        readonly ObservableCollection<IEntry> collectionTemplate = default;
+        public ObservableCollection<IEntry> CollectionTemplate {
             get {
-                if (projectData == null)
-                    return (param = null);
-                if (SelectionMode == null)
-                    return (param = null);
+                Update(collectionTemplate, Manager.GetTemplates());
+                return collectionTemplate;
+            }
+        }
 
-                switch (SelectionMode)
-                {
+        readonly ObservableCollection<IEntry> collectionPlan = default;
+        public ObservableCollection<IEntry> CollectionPlan {
+            get {
+                if (SelectedTemplate.IsNull())
+                    Update(collectionPlan, Manager.GetPlans());
+                else
+                    Update(collectionPlan, Manager.GetPlans(SelectedTemplate));
+                return collectionPlan;
+            }
+        }
+
+        readonly ObservableCollection<IEntry> collectionTask = default;
+        public ObservableCollection<IEntry> CollectionTask {
+            get {
+                if (SelectedPlan.IsNull())
+                    collectionTask.Clear();
+                else
+                    Update(collectionTask, Manager.GetTasks(SelectedPlan));
+                return collectionTask;
+            }
+        }
+
+        readonly ObservableCollection<IEntry> collectionModuleInfo = default;
+        public ObservableCollection<IEntry> CollectionModuleInfo {
+            get {
+                if (SelectedTask.IsNull())
+                    collectionModuleInfo.Clear();
+                else
+                    Update(collectionModuleInfo, Manager.GetModuleInfos(SelectedTask));
+                // TODO: Stay at same module
+                return collectionModuleInfo;
+            }
+        }
+
+        readonly ObservableCollection<IEntry> collectionModule = default;
+        public ObservableCollection<IEntry> CollectionModule {
+            get {
+                if (SelectedTask.IsNull())
+                    collectionModule.Clear();
+                else
+                    Update(collectionModule, Manager.GetModuleInfos(SelectedTask));
+                // TODO: Stay at same module type
+                return collectionModule;
+            }
+        }
+
+        #endregion
+
+        #region ParamsForm
+
+        IParamsForm templateParamsForm = new NullForm();
+        public IParamsForm TemplateParamsForm {
+            get {
+                switch (SelectionMode) {
                     case SelectionModes.Template:
-                        if (SelectedTemplate == null) return null;
-                        return (param =
-                            SelectedTemplate.GetForm());
+                        if (!SelectedTemplate.IsNull())
+                            return (templateParamsForm = Manager.NewFormFromTemplate(SelectedTemplate));
+                        break;
 
                     case SelectionModes.Plan:
-                        if (SelectedPlan == null) return null;
-                        return (param =
-                            SelectedPlan.GetParamForm());
+                        if (!SelectedPlan.IsNull())
+                            return (templateParamsForm = Manager.NewFormFromPlan(SelectedPlan));
+                        break;
 
                     case SelectionModes.Task:
-                        if (SelectedPlan == null) return null;
-                        if (SelectedTask == null) return null;
-                        return (param =
-                            SelectedPlan.GetTaskParamForm(SelectedTask));
-
-                    default:
-                        return (param = null);
+                        if (!SelectedTask.IsNull())
+                            return (templateParamsForm = Manager.NewFormFromTask(SelectedTask));
+                        break;
                 }
+                return (templateParamsForm = new NullForm());
             }
         }
 
-        public void UpdateParamCollection(Variable newVar)
-        {
-            if (param == null)
+        public void UpdateTemplateParamsForm<T>(string key, IParamForm<T> newParamForm) {
+            if (templateParamsForm.IsNull())
                 return;
 
-            foreach (Variable oldVar in param.CommonVariables)
-                if (oldVar.Name == newVar.Name) {
-                    oldVar.Value = newVar.Value;
-                    return;
-                }
+            templateParamsForm
+                .GetParamForm<T>(key)
+                .SetValue(newParamForm.Value);
 
-            foreach (Variable oldVar in param.Variables)
-                if (oldVar.Name == newVar.Name) {
-                    oldVar.Value = newVar.Value;
-                    return;
-                }
+            // TODO: Common Var logic.
+
+            //foreach (var oldVar in param.CommonVariables)
+            //    if (oldVar.Name == newVar.Name) {
+            //        oldVar.Value = newVar.Value;
+            //        return;
+            //    }
         }
 
-        NnModuleForm? module;
-        public NnModuleForm? Module {
+        // TODO: Multiple Task logic
+        IParamsForm moduleParamsForm = new NullForm();
+        public IParamsForm ModuleParamsForm {
             get {
-                if (projectData == null)
-                    return (module = null);
-                if (ModuleSelectionMode == null)
-                    return (module = null);
-
                 switch (ModuleSelectionMode) {
                     case ModuleSelectionModes.Module:
-                        if (SelectedModule == null)
-                            return null;
-                        if (SelectedTasks?.Count > 1)
-                            return null;
-                        return (module = SelectedTask?.GetModuleForm(SelectedModule ?? ModuleType.NnMain));
+                        if (!SelectedModuleInfo.IsNull())
+                            return (moduleParamsForm = Manager.NewModuleFormFromTask(
+                                SelectedTask, SelectedModuleInfo));
+                        break;
 
                     case ModuleSelectionModes.ModuleQueue:
-                        if (SelectedModuleQueue == null)
-                            return null;
-                        return (module = SelectedModuleQueue);
-
-                    default:
-                        return (module = null);
+                        if (!SelectedModule.IsNull())
+                            return (moduleParamsForm = Manager.NewModuleForm(SelectedModule));
+                        break;
                 }
+                return (moduleParamsForm = new NullForm());
             }
         }
 
-        public void UpdateModule(Variable newVar)
-        {
-            if (module == null)
+        public void UpdateModuleParamsForm<T>(string key, IParamForm<T> newParamForm) {
+            if (moduleParamsForm.IsNull())
                 return;
 
-            foreach (Variable oldVar in module.Options)
-                if (oldVar.Name == newVar.Name) {
-                    oldVar.Value = newVar.Value;
-                    return;
-                }
+            moduleParamsForm
+                .GetParamForm<T>(key)
+                .SetValue(newParamForm.Value);
         }
 
-        public List<NnTemplateData>? CollectionTemplate =>
-            projectData?.TemplateDatas?.ToList();
+        #endregion
 
-        ObservableCollection<NnPlanData>? planCollection;
-        public ObservableCollection<NnPlanData> CollectionPlan {
+        #region Text
+
+        public string? TextSchedulerStatus {
             get {
-                if (projectData == null)
-                    return (planCollection = new ObservableCollection<NnPlanData>());
-                if (planCollection == null)
-                    planCollection = new ObservableCollection<NnPlanData>();
-
-                Update(planCollection, projectData.PlanDatas);
-                return planCollection;
-            }
-        }
-
-        ObservableCollection<NnTaskData>? taskCollection;
-        public ObservableCollection<NnTaskData> CollectionTask {
-            get {
-                if ((projectData == null) || (SelectedPlan == null))
-                    return (taskCollection = new ObservableCollection<NnTaskData>());
-                if (taskCollection == null)
-                    taskCollection = new ObservableCollection<NnTaskData>();
-
-                Update(taskCollection, SelectedPlan.TaskDatas);
-                return taskCollection;
-            }
-        }
-
-        public List<ModuleType>? CollectionModule =>
-            projectData?.Modules?.ToList();
-
-        public ObservableCollection<NnModuleForm>? CollectionModuleQueue {
-            get {
-                if ((SelectedTask?.ModuleList != null) && !(SelectedTasks?.Count > 1))
-                    return new ObservableCollection<NnModuleForm>(SelectedTask?.ModuleList);
-                else return null;
-            }
-        }
-            
-
-        public string? TextSchedularStatus {
-            get {
-                if (projectData == null) return null;
-                return projectData.IsSchedularRunning ? "Schedular: ON" : "Schedular: OFF";
+                if (!Manager.IsProjectLoaded())
+                    return "Scheduler: -";
+                else
+                    return Manager.IsSchedulerOn() ? "Scheduler: ON" : "Scheduler: OFF";
             }
         }
 
         public string TextEnqueueModuleButton {
             get {
-                //switch (SelectionMode)
-                //{
+                //switch (SelectionMode) {
                 //    case SelectionModes.Plan:
                 //        return "Enqueue (Plan)";
 
@@ -264,12 +258,16 @@ namespace NnManagerGUI.ViewModel
                         return "Clear (Task)";
 
                     default:
-                        return "Clear  ...";
+                        return "Clear";
                 }
             }
         }
 
+        // TODO: Logging
+
         //public string TextLog =>
         //    projectData?.Log ?? "";
+
+        #endregion
     }
 }

@@ -7,13 +7,10 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 #nullable enable
 
-namespace NnManagerGUI.ViewModel
-{
-    static class UtilGUI
-    {
+namespace NnManagerGUI.ViewModel {
+    static class UtilGUI {
         static string lastFolderPath;
-        public static string? OpenFileDialogToGetFolder()
-        {
+        public static string? OpenFileDialogToGetFolder() {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog {
                 InitialDirectory = lastFolderPath ?? "C:\\Users",
                 IsFolderPicker = true,
@@ -28,27 +25,22 @@ namespace NnManagerGUI.ViewModel
         }
 
         static string lastFilePath;
-        public static string? OpenFileDialogToGetPath(bool Load = false)
-        {
+        public static string? OpenFileDialogToGetPath(bool Load = false) {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog {
                 InitialDirectory = lastFilePath ?? "C:\\Users",
                 EnsureFileExists = Load
             };
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 lastFilePath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
 
         static string lastFilePath2;
-        public static (bool success, string? name, string? content) 
-            OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*", string? title = null)
-        {
+        public static (bool success, string? name, string? content)
+            OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*", string? title = null) {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             if (title != null)
@@ -82,8 +74,7 @@ namespace NnManagerGUI.ViewModel
             }
         }
 
-        public static bool WarnAndDecide(string msg)
-        {
+        public static bool WarnAndDecide(string msg) {
             MessageBoxResult result = MessageBox.Show(
                 msg,
                 "Confirmation",
@@ -96,8 +87,7 @@ namespace NnManagerGUI.ViewModel
                 return false;
         }
 
-        public static void Error(string msg)
-        {
+        public static void Error(string msg) {
             MessageBox.Show(
                 msg,
                 "ERROR!",

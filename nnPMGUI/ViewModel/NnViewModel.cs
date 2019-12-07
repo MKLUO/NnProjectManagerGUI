@@ -1,33 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using System.ComponentModel;
-
-using NnManager;
-using System.Windows.Controls;
+//using NnManager;
 using System.Collections.ObjectModel;
 
-#nullable enable
+using NNMCore;
+using NNMCore.View;
 
-namespace NnManagerGUI.ViewModel
-{
-    partial class ProjectViewModel : Notifier, INotifyPropertyChanged
-    {
-        NnProjectData? projectData;
+//#nullable enable
 
-        public ProjectViewModel()
-        {
-            Util.Warning += OnWarnAndDecide;
-            Util.Error += OnError;
+namespace NnManagerGUI.ViewModel {
+    //partial class ProjectViewModel : Notifier, INotifyPropertyChanged
+    partial class ProjectViewModel : Notifier {
+
+        INNManager Manager { get; }
+
+        public ProjectViewModel() {
+            //Util.Warning += OnWarnAndDecide;
+            //Util.Error += OnError;            
+            Manager = Core.GetManager();
+            Subscribe(Manager);
         }
 
-        protected override Dictionary<string, List<string>>? Derivatives =>
+        protected override Dictionary<string, List<string>> Derivatives =>
             new Dictionary<string, List<string>>
             {
-                // Model Events
+                #region Model Events
 
                 {"Log", new List<string>{
                     "TextLog"}},
@@ -54,10 +52,9 @@ namespace NnManagerGUI.ViewModel
                 {"Plan - DeleteTask", new List<string>{
                     "CollectionTask"}},
 
-                // View Events
+                #endregion
 
-                //{"ParamMode", new List<string>{
-                //    "Param"}},
+                // View Events
 
                 {"SelectedTemplate", new List<string>{
                     "CollectionParam"
@@ -77,13 +74,6 @@ namespace NnManagerGUI.ViewModel
                     "TextEnqueueModuleButton",
                     "TextDequeueModuleButton"}},
 
-                {"SelectionMode", new List<string>{
-                    "CollectionParam",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
-
-
-
                 {"SelectedModule", new List<string>{
                     "Module",
                     "TextEnqueueModuleButton",
@@ -94,64 +84,53 @@ namespace NnManagerGUI.ViewModel
                     "TextEnqueueModuleButton",
                     "TextDequeueModuleButton"}},
 
+                {"SelectionMode", new List<string>{
+                    "CollectionParam",
+                    "TextEnqueueModuleButton",
+                    "TextDequeueModuleButton"}},
+
                 {"ModuleSelectionMode", new List<string>{
                     "Module"}}
             };
 
-        public bool IsBusy()
-        {
-            if (!IsProjectLoaded())
-                return false;
-            else
-                return projectData?.IsBusy ?? false;
-        }
+        public bool IsBusy() => Manager.IsBusy();
 
-        bool OnWarnAndDecide(Util.WarnAndDecideEventArgs e)
-        {
-            return UtilGUI.WarnAndDecide(e.Text);
-        }
+        //bool OnWarnAndDecide(Util.WarnAndDecideEventArgs e) {
+        //    return UtilGUI.WarnAndDecide(e.Text);
+        //}
 
-        void OnError(Util.ErrorEventArgs e)
-        {
-            UtilGUI.Error(e.Text);
-        }
+        //void OnError(Util.ErrorEventArgs e) {
+        //    UtilGUI.Error(e.Text);
+        //}
 
         static void Update<T>(
-            ObservableCollection<T> collection, 
-            IEnumerable<T> newDatas) where T : class, NnProjectData.IRefCompare<T>
-        {
+            ObservableCollection<T> collection,
+            IEnumerable<T> newDatas) where T : class {
             // === 3-step update ===
             // 1. Update (Done automatically by ObservableCollection)
 
             // 2. Remove
-            List<T> removing =
-                collection
-                    .Where(x => newDatas.Where(y => x.HasSameRef(y)).Count() == 0).ToList();
+            List<T> removing = 
+                collection.Except(newDatas).ToList();
             foreach (var data in removing)
                 collection.Remove(data);
 
             // 3. New
             List<T> adding =
-                newDatas
-                    .Where(x => collection.Where(y => x.HasSameRef(y)).Count() == 0).ToList();
+                newDatas.Except(collection).ToList();
             foreach (var data in adding)
                 collection.Add(data);
         }
 
-        T? FindData<T>(T? oldData, IEnumerable<T>? newCollection) where T : class, NnProjectData.IRefCompare<T>
-        {
-            if (oldData == null)
-                return null;
-
-            if (newCollection == null)
-                return null;
+        IEntry FindData(IEntry oldData, IEnumerable<IEntry> newCollection) {
+            if (oldData.IsNull())
+                return new NullEntry();
 
             foreach (var newData in newCollection)
-                if (newData.HasSameRef(oldData))
+                if (newData.Equals(oldData))
                     return newData;
 
-            return null;
+            return new NullEntry();
         }
-
     }
 }
