@@ -6,12 +6,13 @@ using System.Collections.ObjectModel;
 
 using NNMCore;
 using NNMCore.View;
+using System.Runtime.CompilerServices;
 
 //#nullable enable
 
 namespace NnManagerGUI.ViewModel {
     //partial class ProjectViewModel : Notifier, INotifyPropertyChanged
-    partial class ProjectViewModel : Notifier {
+    partial class ProjectViewModel : View.Utils.Notifier {
 
         INNManager Manager { get; }
 
@@ -19,7 +20,7 @@ namespace NnManagerGUI.ViewModel {
             //Util.Warning += OnWarnAndDecide;
             //Util.Error += OnError;            
             Manager = Core.GetManager();
-            Subscribe(Manager);
+            //Subscribe(Manager);
         }
 
         protected override Dictionary<string, List<string>> Derivatives =>
@@ -27,71 +28,56 @@ namespace NnManagerGUI.ViewModel {
             {
                 #region Model Events
 
-                {"Log", new List<string>{
-                    "TextLog"}},
+                //{"Log", new List<string>{
+                //    "TextLog"}},
 
-                {"SchedulerActiveFlag", new List<string>{
-                    "TextSchedularStatus"}},
+                //{"SchedulerActiveFlag", new List<string>{
+                //    "TextSchedularStatus"}},
 
-                {"Model - AddTemplate", new List<string>{
-                    "CollectionTemplate"}},
+                //{"Model - AddTemplate", new List<string>{
+                //    "CollectionTemplate"}},
 
-                {"Model - DeleteTemplate", new List<string>{
-                    "CollectionTemplate"}},
+                //{"Model - DeleteTemplate", new List<string>{
+                //    "CollectionTemplate"}},
 
-                {"Model - AddPlan", new List<string>{
-                    "CollectionPlan"}},
+                //{"Model - AddPlan", new List<string>{
+                //    "CollectionPlan"}},
 
-                {"Model - DeletePlan", new List<string>{
-                    "CollectionPlan"}},
+                //{"Model - DeletePlan", new List<string>{
+                //    "CollectionPlan"}},
 
 
-                {"Plan - AddTask", new List<string>{
-                    "CollectionTask"} },
+                //{"Plan - AddTask", new List<string>{
+                //    "CollectionTask"} },
 
-                {"Plan - DeleteTask", new List<string>{
-                    "CollectionTask"}},
+                //{"Plan - DeleteTask", new List<string>{
+                //    "CollectionTask"}},
 
                 #endregion
 
                 // View Events
 
-                {"SelectedTemplate", new List<string>{
-                    "CollectionParam"
-                } },
-
                 {"SelectedPlan", new List<string>{
-                    "CollectionParam",
-                    "CollectionTask",
-                    "CollectionModule",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"} },
+                    "CollectionTask"} },
 
                 {"SelectedTask", new List<string>{
-                    "Module",
-                    "CollectionParam",
-                    "CollectionModuleQueue",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
+                    "CollectionModulePallete",
+                    "CollectionModule"}},
 
-                {"SelectedModule", new List<string>{
-                    "Module",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
+                //{"SelectedModulePallete", new List<string>{
+                //    "Module"}},
 
-                {"SelectedModuleQueue", new List<string>{
-                    "Module",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
-
-                {"SelectionMode", new List<string>{
-                    "CollectionParam",
-                    "TextEnqueueModuleButton",
-                    "TextDequeueModuleButton"}},
-
-                {"ModuleSelectionMode", new List<string>{
-                    "Module"}}
+                //{"SelectedModule", new List<string>{
+                //    "Module"}},
+                
+                {"ParamDiffOnly", new List<string>{
+                    "TemplateParamsForm"}}
             };
+
+        protected override List<string> Minors => new List<string>{
+            "TextSchedulerStatus",
+            "TextEnqueueModuleButton",
+            "TextDequeueModuleButton"};
 
         public bool IsBusy() => Manager.IsBusy();
 
@@ -110,7 +96,7 @@ namespace NnManagerGUI.ViewModel {
             // 1. Update (Done automatically by ObservableCollection)
 
             // 2. Remove
-            List<T> removing = 
+            List<T> removing =
                 collection.Except(newDatas).ToList();
             foreach (var data in removing)
                 collection.Remove(data);
@@ -122,15 +108,23 @@ namespace NnManagerGUI.ViewModel {
                 collection.Add(data);
         }
 
-        IEntry FindData(IEntry oldData, IEnumerable<IEntry> newCollection) {
-            if (oldData.IsNull())
-                return new NullEntry();
+        void Update<T>(
+            ref ObservableCollection<T> collection,
+            IEnumerable<T> newDatas) where T : class {
+            collection = new ObservableCollection<T>(newDatas);
+        }
 
-            foreach (var newData in newCollection)
-                if (newData.Equals(oldData))
-                    return newData;
+        TIEntry? FindData<TIEntry>(
+            TIEntry? oldData,
+            IEnumerable<TIEntry> newCollection,
+            bool selectFirstIfNull = false) where TIEntry : class {
 
-            return new NullEntry();
+            var returnEntry = newCollection.FirstOrDefault(data => data.Equals(oldData));
+
+            if (selectFirstIfNull && returnEntry == null)
+                returnEntry = newCollection.FirstOrDefault();
+
+            return returnEntry;
         }
     }
 }

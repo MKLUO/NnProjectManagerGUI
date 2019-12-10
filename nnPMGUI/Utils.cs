@@ -5,47 +5,56 @@ using System.Windows;
 
 using Microsoft.WindowsAPICodePack.Dialogs;
 
-#nullable enable
 
 namespace NnManagerGUI.ViewModel {
     static class UtilGUI {
-        static string lastFolderPath;
+
+        public static string? OpenInputDialogToGetText(string question, string defaultAnswer) {
+            var dialog = new View.Dialogs.InputDialog(question, defaultAnswer);
+            if (dialog.ShowDialog() == true) 
+                if (dialog.DialogResult == true)
+                    return dialog.Answer;
+
+            return null;
+        }
+
+        static string? LastPath { get; set; }  = null;
         public static string? OpenFileDialogToGetFolder() {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog {
-                InitialDirectory = lastFolderPath ?? "C:\\Users",
+            using CommonOpenFileDialog dialog = new CommonOpenFileDialog {
+                InitialDirectory = LastPath ?? "C:\\Users",
                 IsFolderPicker = true,
                 EnsureFileExists = false
             };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                lastFolderPath = Directory.GetParent(dialog.FileName).ToString();
+                LastPath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
             } else {
                 return null;
             }
         }
 
-        static string lastFilePath;
+        //static string? lastFilePath = null;
         public static string? OpenFileDialogToGetPath(bool Load = false) {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog {
-                InitialDirectory = lastFilePath ?? "C:\\Users",
+            using CommonOpenFileDialog dialog = new CommonOpenFileDialog {
+                InitialDirectory = LastPath ?? "C:\\Users",
                 EnsureFileExists = Load
             };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                lastFilePath = Directory.GetParent(dialog.FileName).ToString();
+                LastPath = Directory.GetParent(dialog.FileName).ToString();
                 return dialog.FileName;
             } else {
                 return null;
             }
         }
 
-        static string lastFilePath2;
+        //static string lastFilePath2;
         public static (bool success, string? name, string? content)
             OpenFileDialogToGetNameAndContent(string filter = "All files (*.*)|*.*", string? title = null) {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             if (title != null)
                 openFileDialog.Title = title;
-            openFileDialog.InitialDirectory = lastFilePath2 ?? "c:\\";
+            openFileDialog.InitialDirectory = LastPath ?? "c:\\";
             openFileDialog.Filter = filter;
             openFileDialog.FilterIndex = 2;
             openFileDialog.RestoreDirectory = true;
@@ -62,7 +71,7 @@ namespace NnManagerGUI.ViewModel {
                     fileContent = reader.ReadToEnd();
                 }
 
-                lastFilePath2 = Directory.GetParent(openFileDialog.FileName).ToString();
+                LastPath = Directory.GetParent(openFileDialog.FileName).ToString();
 
                 return (
                     true,
@@ -74,10 +83,13 @@ namespace NnManagerGUI.ViewModel {
             }
         }
 
+        static string ConfirmCaption => "Confirmation";
+        static string ErrorCaption => "ERROR!";
+
         public static bool WarnAndDecide(string msg) {
             MessageBoxResult result = MessageBox.Show(
                 msg,
-                "Confirmation",
+                ConfirmCaption,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -90,7 +102,7 @@ namespace NnManagerGUI.ViewModel {
         public static void Error(string msg) {
             MessageBox.Show(
                 msg,
-                "ERROR!",
+                ErrorCaption,
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }

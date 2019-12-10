@@ -8,7 +8,7 @@
   xmlns:vw="clr-namespace:NnManagerGUI.View"
   xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
   mc:Ignorable="d"
-  Title="NN Manager"
+  Title="NNManager"
   SizeToContent="WidthAndHeight"
   ResizeMode="CanMinimize"
   Closing="Window_Closing">

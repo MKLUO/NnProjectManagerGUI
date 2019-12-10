@@ -27,7 +27,7 @@ namespace NnManagerGUI
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (((ViewModel.ProjectViewModel)prototypeView.DataContext).IsBusy())
-                if (!ViewModel.UtilGUI.WarnAndDecide("Some tasks are still running. Exit?"))
+                if (!ViewModel.UtilGUI.WarnAndDecide("Project is busy. Are you sure?"))
                     e.Cancel = true;
         }
     }
