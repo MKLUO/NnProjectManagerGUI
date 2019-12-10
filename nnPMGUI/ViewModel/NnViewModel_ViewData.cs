@@ -270,12 +270,20 @@ namespace NnManagerGUI.ViewModel {
 
         #region Text
 
-        public string? TextSchedulerStatus {
+        public string TextSchedulerStatus {
             get {
                 if (!Manager.IsProjectLoaded())
                     return "Scheduler";
-                else
-                    return Manager.IsSchedulerOn() ? "Scheduler: ON" : "Scheduler: OFF";
+                switch (Manager.SchedulerStatus) {
+                    case SchedulerStatus.IDLE:
+                        return "Scheduler: OFF";
+                    case SchedulerStatus.Actice:
+                        return "Scheduler:  ON";
+                    case SchedulerStatus.Stopping:
+                        return " Stopping...  ";
+                    default:
+                        return "Scheduler";
+                }
             }
         }
 

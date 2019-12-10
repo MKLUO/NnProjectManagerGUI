@@ -4,12 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:NnManagerGUI.ViewModel"
+             xmlns:cvt="clr-namespace:NnManagerGUI.Converter"
              mc:Ignorable="d" Height="560" Width="900">
     <UserControl.DataContext>
         <vm:ProjectViewModel/>
     </UserControl.DataContext>
     <Grid Background="White">
-        <Menu DockPanel.Dock="Top" Height="20" Margin="0,0,0,540">
+
+        <Menu Height="20" Margin="0,0,0,540" Grid.ColumnSpan="2">
             <MenuItem Header="Project">
                 <MenuItem Command="{Binding CommandNewProject}" Header="New..."/>
                 <!--<MenuItem Command="{Binding CommandLoadProject}" Header="Load..."/>-->
@@ -24,21 +26,21 @@
         <Label Content="Templates" 
                ToolTip="Select a template to view its signature or create plan."
                HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top"/>
-        <Label Content="Parameters" 
+        <!--<Label Content="Parameters" 
                ToolTip="Select an entry to view its signature."
-               HorizontalAlignment="Left" Margin="10,255,0,0" VerticalAlignment="Top"/>
-        <Label Content="Plans" HorizontalAlignment="Left" 
+               HorizontalAlignment="Left" Margin="10,255,0,0" VerticalAlignment="Top"/>-->
+        <!--<Label Content="Plans" HorizontalAlignment="Left" 
                ToolTip="Select a plan to view its tasks."
-               Margin="215,25,0,0" VerticalAlignment="Top"/>
+               Margin="215,25,0,0" VerticalAlignment="Top"/>-->
         <Label Content="Module Palette" HorizontalAlignment="Left" 
-               Margin="460,25,0,0" VerticalAlignment="Top"/>
-        <Label Content="Tasks" 
+               Margin="460,25,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <!--<Label Content="Tasks" 
                ToolTip="Tasks in selected plan."
-               HorizontalAlignment="Left" Margin="215,255,0,0" VerticalAlignment="Top"/>
-        <Label Content="Modules" HorizontalAlignment="Left" 
-            Margin="572,255,0,0" VerticalAlignment="Top"/>
-        <Label Content="Module Options" HorizontalAlignment="Left" 
-            Margin="665,25,0,0" VerticalAlignment="Top"/>
+               HorizontalAlignment="Left" Margin="215,255,0,0" VerticalAlignment="Top"/>-->
+        <!--<Label Content="Modules" HorizontalAlignment="Left" 
+            Margin="572,255,0,0" VerticalAlignment="Top"/>-->
+        <!--<Label Content="Module Options" HorizontalAlignment="Left" 
+            Margin="118,25,0,0" VerticalAlignment="Top" Grid.Column="1"/>-->
 
         <Button Command="{Binding CommandAddTemplate}"
                 HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Width="165" Height="25">
@@ -73,19 +75,19 @@
             <TextBlock><Run Text="X"/></TextBlock>
         </Button>
         <Button Command="{Binding CommandEnqueueModule}"
-                Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="584,225,0,0" VerticalAlignment="Top" Width="76" Height="25"/>
+                Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="572,225,0,0" VerticalAlignment="Top" Width="88" Height="25"/>
         <!--<Button Command="{Binding CommandEnqueueModulePad}"
             Content="{Binding TextEnqueueModulePadButton}" HorizontalAlignment="Left" Margin="545,225,0,0" VerticalAlignment="Top" Width="30" Height="25"/>-->
         <Button Command="{Binding CommandClearModules}"
-                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="716,525,0,0" VerticalAlignment="Top" Width="56" Height="25"/>
+                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="809,525,0,0" VerticalAlignment="Top" Width="56" Height="25"/>
         <Button Command="{Binding CommandToggleQueue}"
                 Content="{Binding TextSchedulerStatus}" HorizontalAlignment="Left" Margin="457,525,0,0" VerticalAlignment="Top" Width="110" Height="25"/>
         <Button Command="{Binding CommandLaunch}"
-                Content="Launch" HorizontalAlignment="Left" Margin="572,525,0,0" VerticalAlignment="Top" Width="64" Height="25"/>
+                Content="Launch" HorizontalAlignment="Left" Margin="665,525,0,0" VerticalAlignment="Top" Width="64" Height="25"/>
         <Button Command="{Binding CommandTerminate}"
-            Content="Terminate" HorizontalAlignment="Left" Margin="641,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
+            Content="Terminate" HorizontalAlignment="Left" Margin="734,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
         <Button Command="{Binding CommandGenerateSomeReport}" 
-            HorizontalAlignment="Left" Margin="777,427,0,0" VerticalAlignment="Top" Width="80" Height="25">
+            HorizontalAlignment="Left" Margin="230,427,0,0" VerticalAlignment="Top" Width="80" Height="25" Grid.Column="1">
             <TextBlock><Run Text="Report"/></TextBlock>
         </Button>
         <!--<Button Command="{Binding CommandGenerateBReport0323}" 
@@ -122,16 +124,34 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox ItemsSource="{Binding CollectionModule, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedModule, Mode=TwoWay}"
-                 GotFocus="Modules_GotFocus"
-                 HorizontalAlignment="Left" Height="240" Margin="572,280,0,0" VerticalAlignment="Top" Width="200">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Title}" ToolTip="{Binding Info}" Width="150" TextTrimming="CharacterEllipsis"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <DataGrid ItemsSource="{Binding CollectionModule, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}"         
+                  SelectionMode="Single" 
+                  GotFocus="Modules_GotFocus"
+                  IsReadOnly="True"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
+                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="572,255,0,0" VerticalAlignment="Top" Width="293">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Module" Width="0.4*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" 
+                                       ToolTip="{Binding Info}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Status" Width="0.6*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StatusText}" 
+                                       Background="{Binding Status, Converter={cvt:ModuleStatusToBrushConverter}}"
+                                       ToolTip="{Binding StatusText}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <DataGrid ItemsSource="{Binding CollectionPlan, Mode=OneWay}"
                   SelectedItem="{Binding SelectedPlan, Mode=TwoWay}"         
@@ -140,9 +160,9 @@
                   IsReadOnly="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="170" Margin="215,50,0,0" VerticalAlignment="Top" Width="240">
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="195" Margin="215,25,0,0" VerticalAlignment="Top" Width="240">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Id" Width="0.4*">
+                <DataGridTemplateColumn Header="Plan" Width="0.4*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}" 
@@ -194,7 +214,7 @@
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   CanUserResizeColumns="True"
                   CanUserReorderColumns="False"
-                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="270" Margin="10,280,0,0" VerticalAlignment="Top" Width="200">
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="10,255,0,0" VerticalAlignment="Top" Width="200">
             <!--<DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
@@ -251,9 +271,9 @@
                   IsReadOnly="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="240" Margin="215,280,0,0" VerticalAlignment="Top" Width="352">
+                  AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="215,255,0,0" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Id" SortMemberPath="Id" CanUserSort="True" Width="1*">
+                <DataGridTemplateColumn Header="Task" SortMemberPath="Id" CanUserSort="True" Width="1*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}" 
@@ -277,7 +297,7 @@
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True"
             CanUserReorderColumns="False"
-            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="200" Margin="665,50,0,0" VerticalAlignment="Top" Width="200">
+            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="225" Margin="665,25,0,0" VerticalAlignment="Top" Width="200">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
@@ -299,8 +319,11 @@
                     Width="0.9*" Header="Value"/>
             </DataGrid.Columns>
         </DataGrid>
-        <CheckBox IsChecked="{Binding ParamDiffOnly, Mode=TwoWay}" Content="Diff. Only" HorizontalAlignment="Left" Margin="89,261,0,0" VerticalAlignment="Top"/>
+        <CheckBox IsChecked="{Binding ParamDiffOnly, Mode=TwoWay}" Content="Diff. Only" HorizontalAlignment="Left" Margin="129,531,0,0" VerticalAlignment="Top"/>
 
-
+        <Button Command="{Binding CommandMAGIC}"
+            HorizontalAlignment="Left" Margin="396,225,0,0" VerticalAlignment="Top" Width="116" Height="25">
+            <TextBlock>MAGIC!</TextBlock>
+        </Button>
     </Grid>
 </UserControl>

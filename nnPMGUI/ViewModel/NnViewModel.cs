@@ -20,7 +20,7 @@ namespace NnManagerGUI.ViewModel {
             //Util.Warning += OnWarnAndDecide;
             //Util.Error += OnError;            
             Manager = Core.GetManager();
-            //Subscribe(Manager);
+            Subscribe(Manager);
         }
 
         protected override Dictionary<string, List<string>> Derivatives =>

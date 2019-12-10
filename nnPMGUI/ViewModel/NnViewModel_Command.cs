@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading;
 using System.Windows.Automation;
 using System.Windows.Input;
 using NNMCore;
@@ -9,7 +11,7 @@ namespace NnManagerGUI.ViewModel {
     partial class ProjectViewModel {
         #region common_logic
 
-        bool IsSchedulerOff() => !Manager.IsSchedulerOn();
+        bool IsSchedulerOff() => Manager.SchedulerStatus == SchedulerStatus.IDLE;
         bool IsProjectLoaded() => Manager.IsProjectLoaded();
 
         void ResetSelections() {
@@ -25,6 +27,20 @@ namespace NnManagerGUI.ViewModel {
         }
 
         #endregion
+
+        //BackgroundWorker Worker { get; }
+        //void InitializeWorker() {
+        //    using var cts = new CancellationTokenSource();
+        //    Worker.DoWork += (sender, e) => {
+        //        var worker = sender as BackgroundWorker;
+        //        Manager.WorkLoopAsync(cts.Token);
+        //    };
+        //    Worker.DoWork += (sender, e) => {
+        //        while (true) 
+        //            if (e.Cancel)
+        //                cts.Cancel();
+        //    };
+        //}
 
         public ICommand CommandNewProject =>
             new RelayCommand(NewProjectExecute, () => true);
@@ -211,18 +227,23 @@ namespace NnManagerGUI.ViewModel {
         public ICommand CommandToggleQueue =>
             new RelayCommand(
                 () => {
-                    if (IsSchedulerOff())
-                        Manager.StartScheduler();
-                    else
-                        Manager.StopScheduler();
+                    switch (Manager.SchedulerStatus) {
+                        case SchedulerStatus.IDLE:
+                            Manager.StartScheduler(); break;
+                        case SchedulerStatus.Actice:
+                            Manager.StopScheduler(); break;
+                        case SchedulerStatus.Stopping:
+                            break;
+                    }
+                    OnPropertyChanged(() => TextSchedulerStatus);
                 },
-                () => IsProjectLoaded());
+                () => IsProjectLoaded() &&
+                Manager.SchedulerStatus != SchedulerStatus.Stopping);
 
         public ICommand CommandLaunch =>
             new RelayCommand(
                 LaunchExecute,
                 () =>
-                IsSchedulerOff() &&
                 IsProjectLoaded() &&
                 CanLaunchExecute());
         bool CanLaunchExecute() {
@@ -241,7 +262,8 @@ namespace NnManagerGUI.ViewModel {
                     if (SelectedTask == null) return;
                     Manager.Launch(SelectedTask); return;
                 case ExecutionSelectionModes.Module:
-                    return; // TODO:
+                    if (SelectedModule == null) return;
+                    Manager.Launch(SelectedModule); return;
             }
         }
 
@@ -273,7 +295,8 @@ namespace NnManagerGUI.ViewModel {
         //        CanEnqueueModuleExecute
         //    );
         bool CanEnqueueModuleExecute() =>
-            IsSchedulerOff() && IsProjectLoaded() &&
+            //IsSchedulerOff() && IsProjectLoaded() &&
+            IsProjectLoaded() &&
             (
                 ((SelectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
                 ((SelectedTask != null) && SelectionMode == SelectionModes.Task)
@@ -365,6 +388,25 @@ namespace NnManagerGUI.ViewModel {
         //{
         //    selectedPlan?.GenerateBReport0323();
         //}
+
+        public ICommand CommandMAGIC =>
+            new RelayCommand(
+                () => {
+                    Manager.NewProject(
+                        @"E:\research_materials\QDOTQBIT\DATAS\1207\magic");
+                    var template = Manager.AddTemplate(
+                        @"E:\research_materials\QDOTQBIT\NnTestFiles\SiGe_Si_HEMT_DQD_Petta.in");
+                    var form = Manager.NewFormFromTemplate(template);
+                    var plan = Manager.AddPlan(template, "PLAN", form);
+                    var task = Manager.AddTask(plan, form);
+                    var moduleInfo = Manager.GetModuleInfos(task);
+                    var moduleForm = Manager.NewModuleFormFromTask(task, moduleInfo[0]);
+                    var module = Manager.AddModule(task, moduleForm);
+
+                    OnPropertyChanged("");
+                    ModuleSelectionMode = ModuleSelectionModes.Module;
+                    SelectedModule = module;
+                }, () => true);
     }
 }
 
