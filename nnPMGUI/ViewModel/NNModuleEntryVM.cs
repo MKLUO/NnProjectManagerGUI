@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace NnManagerGUI.ViewModel {
     interface INNModuleEntryVM : INNModuleEntry, IUpdate {
-        bool IsDep { get; }
         INNModuleEntry Entry { get; }
+        bool IsDep { get; }
+        bool Dep { get; set; }
     }
 
     class NNModuleEntryVM : View.Utils.Notifier, INNModuleEntryVM {
         public INNModuleEntry Entry { get; }
         Func<bool> IsDepEvaluation { get; }
-        public bool IsDep => IsDepEvaluation();
         public NNModuleEntryVM(
             INNModuleEntry entry,
             Func<bool> isDepEvaluation) {
@@ -28,6 +28,8 @@ namespace NnManagerGUI.ViewModel {
         public ModuleStatus Status => Entry.Status;
         public string StatusText => Entry.StatusText;
         public string Summary => Entry.Summary;
+        public bool IsDep => IsDepEvaluation();
+        public bool Dep { get; set; } = false;
 
         public override bool Equals(object? obj) {
             if (!(obj is NNModuleEntryVM anotherEntry)) return false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using NNMCore;
 
@@ -39,7 +40,7 @@ namespace NnManagerGUI.ViewModel {
 
             if (Manager.IsBusy()) {
                 if (UtilGUI.WarnAndDecide("Current project is busy.\nTerminate and continue?"))
-                    Manager.Terminate();
+                    Manager.Reset();
                 else return;
             }
 
@@ -201,9 +202,13 @@ namespace NnManagerGUI.ViewModel {
                 if (SelectedTask == null) return;
                 if (ModuleParamsForm == null) return;
 
-                var newModule = Manager.AddModule(
-                    SelectedTask,
-                    ModuleParamsForm);
+
+                var collectionDep = CollectionModuleVM
+                    .Where(vm => vm.Dep).Select(vm => vm.Entry).ToArray();
+
+                var newModule = collectionDep.Any() ?
+                    Manager.AddModule(SelectedTask, ModuleParamsForm, collectionDep) :
+                    Manager.AddModule(SelectedTask, ModuleParamsForm);
 
                 if (newModule == null) return;
 
@@ -261,13 +266,13 @@ namespace NnManagerGUI.ViewModel {
             }
         }
 
-        public ICommand CommandTerminate =>
+        public ICommand CommandReset =>
             new RelayCommand(
-                TerminateExecute,
+                ResetExecute,
                 () =>
                 IsProjectLoaded() &&
-                CanTerminateExecute());
-        bool CanTerminateExecute() {
+                CanResetExecute());
+        bool CanResetExecute() {
             switch (ExecutionSelectionMode) {
                 case ExecutionSelectionModes.Plan:
                     return SelectedPlan != null;
@@ -279,17 +284,17 @@ namespace NnManagerGUI.ViewModel {
                     return false;
             }
         }
-        void TerminateExecute() {
+        void ResetExecute() {
             switch (ExecutionSelectionMode) {
                 case ExecutionSelectionModes.Plan:
                     if (SelectedPlan == null) return;
-                    Manager.Terminate(SelectedPlan); return;
+                    Manager.Reset(SelectedPlan); return;
                 case ExecutionSelectionModes.Task:
                     if (SelectedTask == null) return;
-                    Manager.Terminate(SelectedTask); return;
+                    Manager.Reset(SelectedTask); return;
                 case ExecutionSelectionModes.Module:
                     if (SelectedModule == null) return;
-                    Manager.Terminate(SelectedModule); return;
+                    Manager.Reset(SelectedModule); return;
             }
         }
 
@@ -317,13 +322,13 @@ namespace NnManagerGUI.ViewModel {
             switch (ExecutionSelectionMode) {
                 case ExecutionSelectionModes.Plan:
                     if (SelectedPlan == null) return;
-                    Manager.Terminate(SelectedPlan); return;
+                    Manager.Reset(SelectedPlan); return;
                 case ExecutionSelectionModes.Task:
                     if (SelectedTask == null) return;
-                    Manager.Terminate(SelectedTask); return;
+                    Manager.Reset(SelectedTask); return;
                 case ExecutionSelectionModes.Module:
                     if (SelectedModule == null) return;
-                    Manager.Terminate(SelectedModule); return;
+                    Manager.Reset(SelectedModule); return;
             }
         }
 

@@ -60,9 +60,9 @@
         <Button Command="{Binding CommandToggleQueue}"
                 Content="{Binding TextSchedulerStatus}" HorizontalAlignment="Left" Margin="457,525,0,0" VerticalAlignment="Top" Width="110" Height="25"/>
         <Button Command="{Binding CommandLaunch}"
-                Content="Launch" HorizontalAlignment="Left" Margin="691,525,0,0" VerticalAlignment="Top" Width="64" Height="25"/>
-        <Button Command="{Binding CommandTerminate}"
-            Content="Terminate" HorizontalAlignment="Left" Margin="760,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
+                Content="Launch" HorizontalAlignment="Left" Margin="705,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
+        <Button Command="{Binding CommandReset}"
+            Content="Reset" HorizontalAlignment="Left" Margin="770,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
         <Button Command="{Binding CommandGenerateSomeReport}" 
             HorizontalAlignment="Left" Margin="230,427,0,0" VerticalAlignment="Top" Width="80" Height="25" Grid.Column="1">
             <TextBlock><Run Text="Report"/></TextBlock>
@@ -102,12 +102,11 @@
                   SelectionChanged="Modules_SelectionChanged"
                   SelectionMode="Single" 
                   GotFocus="Modules_GotFocus"
-                  IsReadOnly="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="572,255,0,0" VerticalAlignment="Top" Width="293">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Module" Width="0.25*">
+                <DataGridTemplateColumn Header="Module" Width="0.26*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}" 
@@ -116,7 +115,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="0.05*">
+                <DataGridTemplateColumn MinWidth="0" Width="0.03*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Background="{Binding Status, Converter={cvt:ModuleStatusToBrushConverter}}" 
@@ -125,7 +124,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Detail" Width="0.65*">
+                <DataGridTemplateColumn Header="Detail" Width="0.60*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding StatusText}"       
@@ -134,12 +133,21 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="0.05*">
+                <DataGridTemplateColumn MinWidth="0" Width="0.03*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Background="{Binding IsDep, Converter={cvt:BooleanToBrushConverter}}" 
                                        ToolTip="Dep" 
                                        TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <!--<DataGridCheckBoxColumn Width="0.05*" Binding="{Binding IsDep, Mode=OneWay}" />-->
+                <!--<DataGridCheckBoxColumn MinWidth="0" Width="0.08*" Binding="{Binding Dep}"/>-->
+                <DataGridTemplateColumn MinWidth="0" Width="0.08*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Dep, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
