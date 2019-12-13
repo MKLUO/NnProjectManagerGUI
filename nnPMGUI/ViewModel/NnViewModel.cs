@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using NNMCore;
 using NNMCore.View;
 using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 //#nullable enable
 
@@ -57,27 +58,27 @@ namespace NnManagerGUI.ViewModel {
 
                 // View Events
 
-                {"SelectedPlan", new List<string>{
-                    "CollectionTask"} },
+                {nameof(SelectedPlan), new List<string>{
+                    nameof(CollectionTask)} },
 
-                {"SelectedTask", new List<string>{
-                    "CollectionModulePallete",
-                    "CollectionModule"}},
+                {nameof(SelectedTask), new List<string>{
+                    nameof(CollectionModulePallete),
+                    nameof(CollectionModuleVM)}},
 
                 //{"SelectedModulePallete", new List<string>{
                 //    "Module"}},
 
-                //{"SelectedModule", new List<string>{
-                //    "Module"}},
-                
-                {"ParamDiffOnly", new List<string>{
-                    "TemplateParamsForm"}}
+                {nameof(SelectedModuleVM), new List<string>{
+                    nameof(CollectionModuleVM)}},
+
+                {nameof(ParamDiffOnly), new List<string>{
+                    nameof(TemplateParamsForm)}}
             };
 
         protected override List<string> Minors => new List<string>{
-            "TextSchedulerStatus",
-            "TextEnqueueModuleButton",
-            "TextDequeueModuleButton"};
+            nameof(TextSchedulerStatus),
+            nameof(TextEnqueueModuleButton),
+            nameof(TextDequeueModuleButton)};
 
         public bool IsBusy() => Manager.IsBusy();
 
@@ -91,21 +92,24 @@ namespace NnManagerGUI.ViewModel {
 
         static void Update<T>(
             ObservableCollection<T> collection,
-            IEnumerable<T> newDatas) where T : class {
+            IEnumerable<T> newDatas) where T : class, IUpdate {
             // === 3-step update ===
-            // 1. Update (Done automatically by ObservableCollection)
 
-            // 2. Remove
+            // 1. Remove
             List<T> removing =
                 collection.Except(newDatas).ToList();
             foreach (var data in removing)
                 collection.Remove(data);
 
-            // 3. New
+            // 2. New
             List<T> adding =
                 newDatas.Except(collection).ToList();
             foreach (var data in adding)
                 collection.Add(data);
+            
+            // 3. Update
+            foreach (var data in collection)
+                data.Update();
         }
 
         void Update<T>(

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NnManagerGUI.View.Utils {
-    class Notifier : INotifyPropertyChanged {
+    class Notifier : INotifyPropertyChanged, NNMCore.View.IUpdate {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual Dictionary<string, List<string>> Derivatives { get; } = new Dictionary<string, List<string>> { };
@@ -15,6 +15,8 @@ namespace NnManagerGUI.View.Utils {
 
         protected void Subscribe(INotifyPropertyChanged target) =>
             target.PropertyChanged += OnComponentPropertyChanged;
+        public void Update() =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
 
         protected void OnPropertyChanged(Expression<Func<object>> objExpr) =>
             OnPropertyChanged(((MemberExpression)objExpr.Body).Member.Name);

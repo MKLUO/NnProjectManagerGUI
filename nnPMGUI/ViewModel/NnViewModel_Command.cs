@@ -1,18 +1,15 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Threading;
-using System.Windows.Automation;
+using System.Collections.Generic;
 using System.Windows.Input;
 using NNMCore;
-using NNMCore.View;
 
 namespace NnManagerGUI.ViewModel {
 
     partial class ProjectViewModel {
         #region common_logic
 
-        bool IsSchedulerOff() => Manager.SchedulerStatus == SchedulerStatus.IDLE;
         bool IsProjectLoaded() => Manager.IsProjectLoaded();
+        bool IsSchedulerOff() => Manager.IsProjectLoaded() ? Manager.SchedulerStatus == SchedulerStatus.IDLE : true;
 
         void ResetSelections() {
             SelectionMode = SelectionModes.None;
@@ -24,23 +21,15 @@ namespace NnManagerGUI.ViewModel {
             SelectedTask = null;
             SelectedModulePallete = null;
             SelectedModule = null;
+            //SelectedModuleVM = null;
+
+            SelectedTasks = new List<INNTaskEntry> { };
+            //SelectedModules = new List<INNModuleEntry> { };
+            SelectedModuleVMs = new List<INNModuleEntryVM> { };
         }
 
         #endregion
 
-        //BackgroundWorker Worker { get; }
-        //void InitializeWorker() {
-        //    using var cts = new CancellationTokenSource();
-        //    Worker.DoWork += (sender, e) => {
-        //        var worker = sender as BackgroundWorker;
-        //        Manager.WorkLoopAsync(cts.Token);
-        //    };
-        //    Worker.DoWork += (sender, e) => {
-        //        while (true) 
-        //            if (e.Cancel)
-        //                cts.Cancel();
-        //    };
-        //}
 
         public ICommand CommandNewProject =>
             new RelayCommand(NewProjectExecute, () => true);
@@ -99,14 +88,11 @@ namespace NnManagerGUI.ViewModel {
             if (path == null) return;
 
             var newTemp = Manager.AddTemplate(path);
+            if (newTemp == null) return;
 
-            //if (newTemp.IsNull()) {
-            //    UtilGUI.Error("Template creation failed!");
-            //} else {
             OnPropertyChanged(() => CollectionTemplate);
             SelectionMode = SelectionModes.Template;
             SelectedTemplate = newTemp;
-            //}
         }
 
 
@@ -114,6 +100,7 @@ namespace NnManagerGUI.ViewModel {
             new RelayCommand(
                 () => {
                     if (SelectedTemplate == null) return;
+
                     Manager.DeleteTemplate(SelectedTemplate);
                     OnPropertyChanged(() => CollectionTemplate);
                     SelectedTemplate = null;
@@ -121,19 +108,16 @@ namespace NnManagerGUI.ViewModel {
                 },
                 () => IsProjectLoaded() && (SelectedTemplate != null));
 
-        // TODO: Idea: Stand-alone plan import/export (w/ referred template).
-        // TODO: Idea: Start a new plan from a task?
-
         public ICommand CommandAddPlan =>
             new RelayCommand(
                 AddPlanExecute,
                 () =>
-                    IsSchedulerOff() &&
                     IsProjectLoaded() &&
                     (SelectedTemplate != null) &&
-                    (!TemplateParamsForm.IsNull()));
+                    (TemplateParamsForm != null));
         void AddPlanExecute() {
             if (SelectedTemplate == null) return;
+            if (TemplateParamsForm == null) return;
 
             string? name = UtilGUI.OpenInputDialogToGetText(
                 "Name of the new plan:", SelectedTemplate.Title);
@@ -153,6 +137,7 @@ namespace NnManagerGUI.ViewModel {
                     if (SelectedPlan == null) return;
 
                     Manager.DeletePlan(SelectedPlan);
+                    OnPropertyChanged(() => CollectionPlan);
                     SelectedPlan = null;
                 },
                 () =>
@@ -164,12 +149,12 @@ namespace NnManagerGUI.ViewModel {
             new RelayCommand(
                 AddTaskExecute,
                 () =>
-                    IsSchedulerOff() &&
                     IsProjectLoaded() &&
                     (SelectedPlan != null) &&
-                    (!TemplateParamsForm.IsNull()));
+                    (TemplateParamsForm != null));
         void AddTaskExecute() {
             if (SelectedPlan == null) return;
+            if (TemplateParamsForm == null) return;
 
             var newTask = Manager.AddTask(
                 SelectedPlan, TemplateParamsForm);
@@ -179,109 +164,19 @@ namespace NnManagerGUI.ViewModel {
             SelectedTask = newTask;
         }
 
-        //public ICommand CommandAddTaskFromFile =>
-        //    new RelayCommand(
-        //        AddTaskFromFileExecute,
-        //        () =>
-        //            IsSchedulerOff() && IsProjectLoaded() &&
-        //            (selectedPlan != null) &&
-        //            (SelectionMode != SelectionModes.Template)
-        //    );
-        //void AddTaskFromFileExecute() {
-        //    var (fileOpened, _, content) =
-        //        UtilGUI.OpenFileDialogToGetNameAndContent(
-        //            "NN++ template files (*.nnptmpl)|*.nnptmpl|All files (*.*)|*.*",
-        //            "Choose a parameter file..."
-        //        );
-
-        //    if (fileOpened == false)
-        //        return;
-
-        //    selectedPlan?.AddTaskFromFile(content);
-        //    SelectionMode = SelectionModes.Plan;
-        //}
-
         public ICommand CommandDeleteTask =>
             new RelayCommand(
                 () => {
                     if (SelectedTask == null) return;
 
                     Manager.DeleteTask(SelectedTask);
+                    OnPropertyChanged(() => CollectionTask);
                     SelectedTask = null;
                 },
                 () =>
                 IsSchedulerOff() &&
                 IsProjectLoaded() &&
                 (SelectedTask != null));
-
-        //public ICommand StartQueue => 
-        //    new RelayCommand(
-        //        () => projectData?.StartScheduler(),
-        //        () => IsProjectLoaded() && !IsQueueRunning());
-
-        //public ICommand StopQueue =>
-        //    new RelayCommand(
-        //        () => projectData?.StopScheduler(),
-        //        () => IsProjectLoaded() && IsQueueRunning());
-
-        public ICommand CommandToggleQueue =>
-            new RelayCommand(
-                () => {
-                    switch (Manager.SchedulerStatus) {
-                        case SchedulerStatus.IDLE:
-                            Manager.StartScheduler(); break;
-                        case SchedulerStatus.Actice:
-                            Manager.StopScheduler(); break;
-                        case SchedulerStatus.Stopping:
-                            break;
-                    }
-                    OnPropertyChanged(() => TextSchedulerStatus);
-                },
-                () => IsProjectLoaded() &&
-                Manager.SchedulerStatus != SchedulerStatus.Stopping);
-
-        public ICommand CommandLaunch =>
-            new RelayCommand(
-                LaunchExecute,
-                () =>
-                IsProjectLoaded() &&
-                CanLaunchExecute());
-        bool CanLaunchExecute() {
-            switch (ExecutionSelectionMode) {
-                case ExecutionSelectionModes.Task:
-                    return SelectedTask != null;
-                case ExecutionSelectionModes.Module:
-                    return SelectedModule != null;
-                default:
-                    return false;
-            }
-        }
-        void LaunchExecute() {
-            switch (ExecutionSelectionMode) {
-                case ExecutionSelectionModes.Task:
-                    if (SelectedTask == null) return;
-                    Manager.Launch(SelectedTask); return;
-                case ExecutionSelectionModes.Module:
-                    if (SelectedModule == null) return;
-                    Manager.Launch(SelectedModule); return;
-            }
-        }
-
-        public ICommand CommandTerminate =>
-            new RelayCommand(
-                () => {
-                    switch (SelectionMode) {
-                        case SelectionModes.Plan:
-                            //if (SelectedPlan != null) 
-                            //Manager.Terminate(SelectedPlan); break;
-                            break;
-                        case SelectionModes.Task:
-                            if (SelectedTasks == null) return;
-                            foreach (var task in SelectedTasks)
-                                Manager.Terminate(task); break;
-                    }
-                },
-                () => IsSchedulerOff() && IsProjectLoaded());
 
         // TODO: Module Set logic.
         public ICommand CommandEnqueueModule =>
@@ -300,94 +195,137 @@ namespace NnManagerGUI.ViewModel {
             (
                 ((SelectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
                 ((SelectedTask != null) && SelectionMode == SelectionModes.Task)
-            ) && (!ModuleParamsForm.IsNull());
+            ) && (ModuleParamsForm != null);
         Action EnqueueModuleExecute(bool pad = false) =>
             () => {
                 if (SelectedTask == null) return;
+                if (ModuleParamsForm == null) return;
 
                 var newModule = Manager.AddModule(
                     SelectedTask,
                     ModuleParamsForm);
 
-                OnPropertyChanged(() => CollectionModule);
+                if (newModule == null) return;
+
+                OnPropertyChanged(() => CollectionModuleVM);
                 ModuleSelectionMode = ModuleSelectionModes.Module;
                 SelectedModule = newModule;
-
-                return;
-                //switch (SelectionMode) {
-                //    //case SelectionModes.Plan:
-                //    //    Manager.AddModule(SelectedPlan,);
-                //    //    return;
-
-                //    case SelectionModes.Task:
-                //        var newModule = Manager.AddModule(
-                //            SelectedTask, SelectedModulePallete,
-                //            ModuleParamsForm.ToParams());
-                //        if (newModule.IsNull()) {
-                //            UtilGUI.Error("Module creation failed!");
-                //        } else {
-                //            OnPropertyChanged(() => CollectionModule);
-                //            ModuleSelectionMode = ModuleSelectionModes.Module;
-                //            SelectedModule = newModule;
-                //        }
-                //        return;
-                //    //if (SelectedTasks == null) return;
-                //    //foreach (var task in SelectedTasks)
-                //    //    Manager.AddModule(
-                //    //        task, SelectedModulePallete, 
-                //    //        moduleParamsForm.ToParams());
-                //    //return;
-
-                //    default:
-                //        return;
-                //}
+                //SelectedModuleVM = ToModuleVM(newModule);
             };
 
-        //public ICommand CommandClearModules =>
-        //    new RelayCommand(
-        //        ClearModulesExecute,
-        //        () =>
-        //            IsSchedulerOff() && IsProjectLoaded() &&
-        //            (
-        //                ((selectedPlan != null) && SelectionMode == SelectionModes.Plan) ||
-        //                ((selectedTask != null) && SelectionMode == SelectionModes.Task)
-        //            ));
-        //void ClearModulesExecute() {
-        //    switch (SelectionMode) {
-        //        case SelectionModes.Plan:
-        //            if (selectedPlan == null) return;
-        //            selectedPlan.ClearModules();
-        //            break;
+        public ICommand CommandToggleQueue =>
+            new RelayCommand(
+                () => {
+                    switch (Manager.SchedulerStatus) {
+                        case SchedulerStatus.IDLE:
+                            Manager.StartScheduler(); break;
+                        case SchedulerStatus.Actice:
+                            Manager.StopScheduler(true); break;
+                        case SchedulerStatus.Stopping:
+                            break;
+                    }
+                    OnPropertyChanged(() => TextSchedulerStatus);
+                },
+                () => IsProjectLoaded() &&
+                Manager.SchedulerStatus != SchedulerStatus.Stopping);
 
-        //        case SelectionModes.Task:
-        //            if (selectedPlan == null) return;
-        //            if (SelectedTasks == null) return;
-        //            foreach (var task in SelectedTasks)
-        //                task.ClearModules();
-        //            break;
+        public ICommand CommandLaunch =>
+            new RelayCommand(
+                LaunchExecute,
+                () =>
+                IsProjectLoaded() &&
+                CanLaunchExecute());
+        bool CanLaunchExecute() {
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    return SelectedPlan != null;
+                case ExecutionSelectionModes.Task:
+                    return SelectedTask != null;
+                case ExecutionSelectionModes.Module:
+                    return SelectedModule != null;
+                default:
+                    return false;
+            }
+        }
+        void LaunchExecute() {
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    if (SelectedPlan == null) return;
+                    Manager.Launch(SelectedPlan); return;
+                case ExecutionSelectionModes.Task:
+                    if (SelectedTask == null) return;
+                    Manager.Launch(SelectedTask); return;
+                case ExecutionSelectionModes.Module:
+                    if (SelectedModule == null) return;
+                    Manager.Launch(SelectedModule); return;
+            }
+        }
 
-        //        default:
-        //            return;
-        //    }
-        //}
+        public ICommand CommandTerminate =>
+            new RelayCommand(
+                TerminateExecute,
+                () =>
+                IsProjectLoaded() &&
+                CanTerminateExecute());
+        bool CanTerminateExecute() {
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    return SelectedPlan != null;
+                case ExecutionSelectionModes.Task:
+                    return SelectedTask != null;
+                case ExecutionSelectionModes.Module:
+                    return SelectedModule != null;
+                default:
+                    return false;
+            }
+        }
+        void TerminateExecute() {
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    if (SelectedPlan == null) return;
+                    Manager.Terminate(SelectedPlan); return;
+                case ExecutionSelectionModes.Task:
+                    if (SelectedTask == null) return;
+                    Manager.Terminate(SelectedTask); return;
+                case ExecutionSelectionModes.Module:
+                    if (SelectedModule == null) return;
+                    Manager.Terminate(SelectedModule); return;
+            }
+        }
 
-        //FIXME: HACK!!!!
-        //public ICommand CommandGenerateSomeReport =>
-        //    new RelayCommand(
-        //        GenerateSomeReport,
-        //        () => IsSchedulerOff() && IsProjectLoaded() && (selectedPlan != null));
-        //void GenerateSomeReport() {
-        //    selectedPlan?.GenerateSomeReport();
-        //}
 
-        //public ICommand CommandGenerateBReport0323 =>
-        //    new RelayCommand(
-        //        GenerateBReport0323Execute,
-        //        () => IsSchedulerOff() && IsProjectLoaded() && (selectedPlan != null));
-        //void GenerateBReport0323Execute()
-        //{
-        //    selectedPlan?.GenerateBReport0323();
-        //}
+        public ICommand CommandClearModules =>
+            new RelayCommand(
+                ClearModulesExecute,
+                () =>
+                    IsSchedulerOff() && IsProjectLoaded() &&
+                    CanClearModulesExecute());
+        bool CanClearModulesExecute() {
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    return SelectedPlan != null;
+                case ExecutionSelectionModes.Task:
+                    return SelectedTask != null;
+                case ExecutionSelectionModes.Module:
+                    return SelectedModule != null;
+                default:
+                    return false;
+            }
+        }
+        void ClearModulesExecute() {
+            // TODO:
+            switch (ExecutionSelectionMode) {
+                case ExecutionSelectionModes.Plan:
+                    if (SelectedPlan == null) return;
+                    Manager.Terminate(SelectedPlan); return;
+                case ExecutionSelectionModes.Task:
+                    if (SelectedTask == null) return;
+                    Manager.Terminate(SelectedTask); return;
+                case ExecutionSelectionModes.Module:
+                    if (SelectedModule == null) return;
+                    Manager.Terminate(SelectedModule); return;
+            }
+        }
 
         public ICommand CommandMAGIC =>
             new RelayCommand(
@@ -404,8 +342,15 @@ namespace NnManagerGUI.ViewModel {
                     var module = Manager.AddModule(task, moduleForm);
 
                     OnPropertyChanged("");
+                    SelectionMode = SelectionModes.Task;
+                    ExecutionSelectionMode = ExecutionSelectionModes.Task;
                     ModuleSelectionMode = ModuleSelectionModes.Module;
+                    SelectedTemplate = template;
+                    SelectedPlan = plan;
+                    SelectedTask = task;
+                    SelectedModulePallete = moduleInfo[0];
                     SelectedModule = module;
+                    //SelectedModuleVM = ToModuleVM(module);
                 }, () => true);
     }
 }

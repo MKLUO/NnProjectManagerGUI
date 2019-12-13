@@ -1,4 +1,5 @@
-﻿using NNMCore.View;
+﻿using NNMCore;
+using NNMCore.View;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
@@ -38,8 +39,10 @@ namespace NnManagerGUI.View {
         private void Templates_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
             VM.SelectionMode = SelectionModes.Template;
 
-        private void Plans_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
+        private void Plans_GotFocus(object sender, System.Windows.RoutedEventArgs e) {
             VM.SelectionMode = SelectionModes.Plan;
+            VM.ExecutionSelectionMode = ExecutionSelectionModes.Plan;
+        }
 
         private void Tasks_GotFocus(object sender, System.Windows.RoutedEventArgs e) {
             VM.SelectionMode = SelectionModes.Task;
@@ -56,9 +59,18 @@ namespace NnManagerGUI.View {
             VM.ExecutionSelectionMode = ExecutionSelectionModes.Module;
         }
 
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            // TODO:
-            //VM.SelectedTasks = (sender as DataGrid).SelectedItems.Cast<NnTaskData>().ToList();
+        private void Tasks_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            VM.SelectedTasks = 
+                (sender as DataGrid)?.SelectedItems.Cast<INNTaskEntry>()
+                .ToList() ?? new List<INNTaskEntry> { };
+        }
+        private void Modules_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            //VM.SelectedModules =
+            //    (sender as DataGrid)?.SelectedItems.Cast<INNModuleEntry>()
+            //    .ToList() ?? new List<INNModuleEntry> { };
+            VM.SelectedModuleVMs =
+                (sender as DataGrid)?.SelectedItems.Cast<ViewModel.INNModuleEntryVM>()
+                .ToList() ?? new List<ViewModel.INNModuleEntryVM> { };
         }
     }
 }

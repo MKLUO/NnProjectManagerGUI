@@ -26,21 +26,8 @@
         <Label Content="Templates" 
                ToolTip="Select a template to view its signature or create plan."
                HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top"/>
-        <!--<Label Content="Parameters" 
-               ToolTip="Select an entry to view its signature."
-               HorizontalAlignment="Left" Margin="10,255,0,0" VerticalAlignment="Top"/>-->
-        <!--<Label Content="Plans" HorizontalAlignment="Left" 
-               ToolTip="Select a plan to view its tasks."
-               Margin="215,25,0,0" VerticalAlignment="Top"/>-->
         <Label Content="Module Palette" HorizontalAlignment="Left" 
                Margin="460,25,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <!--<Label Content="Tasks" 
-               ToolTip="Tasks in selected plan."
-               HorizontalAlignment="Left" Margin="215,255,0,0" VerticalAlignment="Top"/>-->
-        <!--<Label Content="Modules" HorizontalAlignment="Left" 
-            Margin="572,255,0,0" VerticalAlignment="Top"/>-->
-        <!--<Label Content="Module Options" HorizontalAlignment="Left" 
-            Margin="118,25,0,0" VerticalAlignment="Top" Grid.Column="1"/>-->
 
         <Button Command="{Binding CommandAddTemplate}"
                 HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Width="165" Height="25">
@@ -54,10 +41,6 @@
                 HorizontalAlignment="Left" Margin="215,225,0,0" VerticalAlignment="Top" Width="100" Height="25">
             <TextBlock>Add Plan</TextBlock>
         </Button>
-        <!--<Button Command="{Binding CommandAddPlanFromFile}"
-                HorizontalAlignment="Left" Margin="320,225,0,0" VerticalAlignment="Top" Width="100" Height="25">
-            <TextBlock>from file...</TextBlock>
-        </Button>-->
         <Button Command="{Binding CommandDeletePlan}"
             HorizontalAlignment="Left" Margin="320,225,0,0" VerticalAlignment="Top" Width="30" Height="25">
             <TextBlock>X</TextBlock>
@@ -66,34 +49,24 @@
                 HorizontalAlignment="Left" Margin="215,525,0,0" VerticalAlignment="Top" Width="100" Height="25">
             <TextBlock>Add Task</TextBlock>
         </Button>
-        <!--<Button Command="{Binding CommandAddTaskFromFile}" 
-            HorizontalAlignment="Left" Margin="95,525,0,0" VerticalAlignment="Top" Width="80" Height="25">
-            <TextBlock>from file...</TextBlock>
-        </Button>-->
         <Button Command="{Binding CommandDeleteTask}"
             HorizontalAlignment="Left" Margin="320,525,0,0" VerticalAlignment="Top" Width="30" Height="25">
             <TextBlock><Run Text="X"/></TextBlock>
         </Button>
         <Button Command="{Binding CommandEnqueueModule}"
                 Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="572,225,0,0" VerticalAlignment="Top" Width="88" Height="25"/>
-        <!--<Button Command="{Binding CommandEnqueueModulePad}"
-            Content="{Binding TextEnqueueModulePadButton}" HorizontalAlignment="Left" Margin="545,225,0,0" VerticalAlignment="Top" Width="30" Height="25"/>-->
         <Button Command="{Binding CommandClearModules}"
-                Content="{Binding TextDequeueModuleButton}" HorizontalAlignment="Left" Margin="809,525,0,0" VerticalAlignment="Top" Width="56" Height="25"/>
+                Content="X" HorizontalAlignment="Left" Margin="835,525,0,0" VerticalAlignment="Top" Width="30" Height="25"/>
         <Button Command="{Binding CommandToggleQueue}"
                 Content="{Binding TextSchedulerStatus}" HorizontalAlignment="Left" Margin="457,525,0,0" VerticalAlignment="Top" Width="110" Height="25"/>
         <Button Command="{Binding CommandLaunch}"
-                Content="Launch" HorizontalAlignment="Left" Margin="665,525,0,0" VerticalAlignment="Top" Width="64" Height="25"/>
+                Content="Launch" HorizontalAlignment="Left" Margin="691,525,0,0" VerticalAlignment="Top" Width="64" Height="25"/>
         <Button Command="{Binding CommandTerminate}"
-            Content="Terminate" HorizontalAlignment="Left" Margin="734,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
+            Content="Terminate" HorizontalAlignment="Left" Margin="760,525,0,0" VerticalAlignment="Top" Width="70" Height="25"/>
         <Button Command="{Binding CommandGenerateSomeReport}" 
             HorizontalAlignment="Left" Margin="230,427,0,0" VerticalAlignment="Top" Width="80" Height="25" Grid.Column="1">
             <TextBlock><Run Text="Report"/></TextBlock>
         </Button>
-        <!--<Button Command="{Binding CommandGenerateBReport0323}" 
-            HorizontalAlignment="Left" Margin="777,457,0,0" VerticalAlignment="Top" Width="80" Height="25">
-            <TextBlock><Run Text="B Report"/></TextBlock>
-        </Button>-->
 
 
         <ListBox ItemsSource="{Binding CollectionTemplate, Mode=OneWay}"
@@ -124,8 +97,9 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <DataGrid ItemsSource="{Binding CollectionModule, Mode=OneWay}"
-                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}"         
+        <DataGrid ItemsSource="{Binding CollectionModuleVM, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedModuleVM, Mode=TwoWay}"
+                  SelectionChanged="Modules_SelectionChanged"
                   SelectionMode="Single" 
                   GotFocus="Modules_GotFocus"
                   IsReadOnly="True"
@@ -133,20 +107,39 @@
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="572,255,0,0" VerticalAlignment="Top" Width="293">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Module" Width="0.4*">
+                <DataGridTemplateColumn Header="Module" Width="0.25*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}" 
-                                       ToolTip="{Binding Info}" TextTrimming="CharacterEllipsis"/>
+                                       ToolTip="{Binding Info}" 
+                                       TextTrimming="CharacterEllipsis"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Status" Width="0.6*">
+                <DataGridTemplateColumn Width="0.05*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding StatusText}" 
-                                       Background="{Binding Status, Converter={cvt:ModuleStatusToBrushConverter}}"
-                                       ToolTip="{Binding StatusText}" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Background="{Binding Status, Converter={cvt:ModuleStatusToBrushConverter}}" 
+                                       ToolTip="{Binding Status}" 
+                                       TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Detail" Width="0.65*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StatusText}"       
+                                       ToolTip="{Binding StatusText}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="0.05*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Background="{Binding IsDep, Converter={cvt:BooleanToBrushConverter}}" 
+                                       ToolTip="Dep" 
+                                       TextTrimming="CharacterEllipsis"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -215,18 +208,6 @@
                   CanUserResizeColumns="True"
                   CanUserReorderColumns="False"
                   AutoGenerateColumns="False" HorizontalAlignment="Left" Height="265" Margin="10,255,0,0" VerticalAlignment="Top" Width="200">
-            <!--<DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsDefault}" Value="True">
-                            <Setter Property="Background" Value="Bisque"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=IsDefault}" Value="False">
-                            <Setter Property="Background" Value="White"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>-->
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Name" 
                                         SortMemberPath="Key" 
@@ -252,21 +233,11 @@
                 <DataGridTextColumn 
                     Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" 
                     Width="0.9*" Header="Value"/>
-                <!--<DataGridTextColumn Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                    Width="0.9*" Header="Value"/>-->
-                <!--<DataGridTemplateColumn Header="Value (Variable)">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding Value}" 
-                                     ToolTip="{Binding Value}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>-->
             </DataGrid.Columns>
         </DataGrid>
         <DataGrid ItemsSource="{Binding CollectionTask, Mode=OneWay}"
                   SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
-                  SelectionChanged="DataGrid_SelectionChanged"
+                  SelectionChanged="Tasks_SelectionChanged"
                   GotFocus="Tasks_GotFocus"
                   IsReadOnly="True"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -319,7 +290,8 @@
                     Width="0.9*" Header="Value"/>
             </DataGrid.Columns>
         </DataGrid>
-        <CheckBox IsChecked="{Binding ParamDiffOnly, Mode=TwoWay}" Content="Diff. Only" HorizontalAlignment="Left" Margin="129,531,0,0" VerticalAlignment="Top"/>
+
+        <CheckBox IsChecked="{Binding ParamDiffOnly, Mode=TwoWay}" Content="Diff. only" HorizontalAlignment="Left" Margin="129,531,0,0" VerticalAlignment="Top"/>
 
         <Button Command="{Binding CommandMAGIC}"
             HorizontalAlignment="Left" Margin="396,225,0,0" VerticalAlignment="Top" Width="116" Height="25">

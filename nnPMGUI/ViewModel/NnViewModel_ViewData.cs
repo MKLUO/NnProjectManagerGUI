@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using System.Collections.ObjectModel;
 
-using System;
-
 using NNMCore.View;
-using System.Runtime.CompilerServices;
-using System.ComponentModel;
 using NNMCore;
+using System.ComponentModel;
 
 namespace NnManagerGUI.ViewModel {
     //using ModuleType = NNMCore.NNModuleType;
@@ -55,12 +51,14 @@ namespace NnManagerGUI.ViewModel {
                         SelectedModulePallete = SelectedModulePallete; return;
                     case ModuleSelectionModes.Module:
                         SelectedModule = SelectedModule; return;
+                        //SelectedModuleVM = SelectedModuleVM; return;
                 }
             }
         }
 
         public enum ExecutionSelectionModes {
             None,
+            Plan,
             Task,
             ModulePalette,
             Module
@@ -82,7 +80,8 @@ namespace NnManagerGUI.ViewModel {
 
         INNTemplateEntry? selectedTemplate = null;
         public INNTemplateEntry? SelectedTemplate {
-            get => FindData(selectedTemplate, collectionTemplate);
+            //get => FindData(selectedTemplate, collectionTemplate);
+            get => selectedTemplate;
             set {
                 SetField(ref selectedTemplate, FindData(value, collectionTemplate));
                 NewTemplateParamsForm();
@@ -91,47 +90,59 @@ namespace NnManagerGUI.ViewModel {
 
         INNPlanEntry? selectedPlan = null;
         public INNPlanEntry? SelectedPlan {
-            get => FindData(selectedPlan, collectionPlan);
+            //get => FindData(selectedPlan, collectionPlan);
+            get => selectedPlan;
             set {
                 SetField(ref selectedPlan, FindData(value, collectionPlan));
+                if (selectedPlan == null) {
+                    SelectedTask = null;
+                    SelectedModule = null;
+                    SelectedModulePallete = null;
+                    return;
+                }
+                SelectedTemplate = Manager.TemplateOfPlan(selectedPlan);
                 NewTemplateParamsForm();
             }
         }
 
         INNTaskEntry? selectedTask = null;
         public INNTaskEntry? SelectedTask {
-            get => FindData(selectedTask, collectionTask);
+            //get => FindData(selectedTask, collectionTask);
+            get => selectedTask;
             set {
                 SetField(ref selectedTask, FindData(value, collectionTask));
                 NewTemplateParamsForm();
             }
         }
-        public IList<INNTaskEntry>? SelectedTasks; // TODO: ?
+        public IList<INNTaskEntry> SelectedTasks = new List<INNTaskEntry> { };
 
 
         INNModuleInfoEntry? selectedModulePallete = null;
         public INNModuleInfoEntry? SelectedModulePallete {
-            get => FindData(selectedModulePallete, collectionModulePallete);
+            //get => FindData(selectedModulePallete, collectionModulePallete);
+            get => selectedModulePallete;
             set {
                 SetField(ref selectedModulePallete, FindData(value, collectionModulePallete));
                 NewModuleParamsForm();
             }
         }
 
-        INNModuleEntry? selectedModule = null;
-        public INNModuleEntry? SelectedModule {
-            get => FindData(selectedModule, collectionModule);
-            set {
-                SetField(ref selectedModule, FindData(value, collectionModule));
-                NewModuleParamsForm();
-            }
-        }
+        //INNModuleEntry? selectedModule = null;
+        //public INNModuleEntry? SelectedModule {
+        //    //get => FindData(selectedModule, collectionModule);
+        //    get => selectedModule;
+        //    set {
+        //        SetField(ref selectedModule, FindData(value, collectionModule));
+        //        NewModuleParamsForm();
+        //    }
+        //}
+        //public IList<INNModuleEntry> SelectedModules = new List<INNModuleEntry> { };
 
-        #endregion
+    #endregion
 
-        #region Collection
+    #region Collection
 
-        static ObservableCollection<TIEntry> Empty<TIEntry>() => new ObservableCollection<TIEntry>();
+    static ObservableCollection<TIEntry> Empty<TIEntry>() => new ObservableCollection<TIEntry>();
 
         ObservableCollection<INNTemplateEntry> collectionTemplate = Empty<INNTemplateEntry>();
         public ObservableCollection<INNTemplateEntry> CollectionTemplate {
@@ -178,23 +189,24 @@ namespace NnManagerGUI.ViewModel {
             }
         }
 
-        ObservableCollection<INNModuleEntry> collectionModule = Empty<INNModuleEntry>();
-        public ObservableCollection<INNModuleEntry> CollectionModule {
-            get {
-                if (!IsProjectLoaded() || SelectedTask == null)
-                    collectionModule = Empty<INNModuleEntry>();
-                else
-                    Update(ref collectionModule, Manager.GetModules(SelectedTask));
-                return collectionModule;
-            }
-        }
-
+        //ObservableCollection<INNModuleEntry> collectionModule = Empty<INNModuleEntry>();
+        //public ObservableCollection<INNModuleEntry> CollectionModule {
+        //    get {
+        //        if (!IsProjectLoaded() || SelectedTask == null)
+        //            collectionModule = Empty<INNModuleEntry>();
+        //        else
+        //            Update(ref collectionModule, Manager.GetModules(SelectedTask));
+        //        return collectionModule;
+        //    }
+        //}
+        
         #endregion
 
         #region ParamsForm
 
-        IParamsForm templateParamsForm = new NullForm();
-        public IParamsForm TemplateParamsForm {
+        IParamsForm? templateParamsForm = null;
+        public IParamsForm? TemplateParamsForm {
+            // TODO:
             get => ParamDiffOnly ? templateParamsForm : templateParamsForm;
             set => SetField(ref templateParamsForm, value);
         }
@@ -216,10 +228,10 @@ namespace NnManagerGUI.ViewModel {
                             SelectedTask, SelectedPlan);
                     return;
             }
-            TemplateParamsForm = new NullForm();
+            TemplateParamsForm = null;
         }
         public void UpdateTemplateParamsForm<T>(INamedForm<T> newParamForm) {
-            if (TemplateParamsForm.IsNull())
+            if (TemplateParamsForm == null)
                 return;
 
             TemplateParamsForm
@@ -236,8 +248,8 @@ namespace NnManagerGUI.ViewModel {
         }
 
         // TODO: Multiple Task logic
-        IParamsForm moduleParamsForm = new NullForm();
-        public IParamsForm ModuleParamsForm {
+        IParamsForm? moduleParamsForm = null;
+        public IParamsForm? ModuleParamsForm {
             get => moduleParamsForm;
             private set => SetField(ref moduleParamsForm, value);
         }
@@ -255,10 +267,10 @@ namespace NnManagerGUI.ViewModel {
                             SelectedModule, SelectedTask);
                     return;
             }
-            ModuleParamsForm = new NullForm();
+            ModuleParamsForm = null;
         }
         public void UpdateModuleParamsForm<T>(INamedForm<T> newParamForm) {
-            if (ModuleParamsForm.IsNull())
+            if (ModuleParamsForm == null)
                 return;
 
             ModuleParamsForm
@@ -280,7 +292,8 @@ namespace NnManagerGUI.ViewModel {
                     case SchedulerStatus.Actice:
                         return "Scheduler:  ON";
                     case SchedulerStatus.Stopping:
-                        return " Stopping...  ";
+                        return "Scheduler: OFF";
+                        //return " Stopping...  ";
                     default:
                         return "Scheduler";
                 }
@@ -310,10 +323,10 @@ namespace NnManagerGUI.ViewModel {
             get {
                 switch (SelectionMode) {
                     case SelectionModes.Plan:
-                        return "Clear (Plan)";
+                        return "Clear(P)";
 
                     case SelectionModes.Task:
-                        return "Clear (Task)";
+                        return "Clear(T)";
 
                     default:
                         return "Clear";
