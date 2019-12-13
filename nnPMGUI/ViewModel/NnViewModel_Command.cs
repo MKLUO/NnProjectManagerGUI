@@ -9,6 +9,7 @@ namespace NnManagerGUI.ViewModel {
     partial class ProjectViewModel {
         #region common_logic
 
+        public bool IsBusy() => Manager.IsBusy();
         bool IsProjectLoaded() => Manager.IsProjectLoaded();
         bool IsSchedulerOff() => Manager.IsProjectLoaded() ? Manager.SchedulerStatus == SchedulerStatus.IDLE : true;
 
@@ -27,6 +28,11 @@ namespace NnManagerGUI.ViewModel {
             SelectedTasks = new List<INNTaskEntry> { };
             //SelectedModules = new List<INNModuleEntry> { };
             SelectedModuleVMs = new List<INNModuleEntryVM> { };
+        }
+
+        void ResetControls() {
+            foreach (var vm in collectionModuleVM)
+                vm.Dep = false;
         }
 
         #endregion
@@ -212,11 +218,13 @@ namespace NnManagerGUI.ViewModel {
 
                 if (newModule == null) return;
 
+                ResetControls();
                 OnPropertyChanged(() => CollectionModuleVM);
                 ModuleSelectionMode = ModuleSelectionModes.Module;
+                ExecutionSelectionMode = ExecutionSelectionModes.Module;
                 SelectedModule = newModule;
-                //SelectedModuleVM = ToModuleVM(newModule);
             };
+        
 
         public ICommand CommandToggleQueue =>
             new RelayCommand(
@@ -322,14 +330,16 @@ namespace NnManagerGUI.ViewModel {
             switch (ExecutionSelectionMode) {
                 case ExecutionSelectionModes.Plan:
                     if (SelectedPlan == null) return;
-                    Manager.Reset(SelectedPlan); return;
+                    Manager.ClearModule(SelectedPlan); break;
                 case ExecutionSelectionModes.Task:
                     if (SelectedTask == null) return;
-                    Manager.Reset(SelectedTask); return;
+                    Manager.ClearModule(SelectedTask); break;
                 case ExecutionSelectionModes.Module:
                     if (SelectedModule == null) return;
-                    Manager.Reset(SelectedModule); return;
+                    Manager.DeleteModule(SelectedModule); break;
             }
+            OnPropertyChanged(() => CollectionModuleVM);
+            SelectedModule = null;
         }
 
         public ICommand CommandMAGIC =>

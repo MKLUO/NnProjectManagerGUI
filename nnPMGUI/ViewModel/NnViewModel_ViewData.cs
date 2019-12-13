@@ -317,19 +317,30 @@ namespace NnManagerGUI.ViewModel {
             }
         }
 
-        public string TextEnqueueModulePadButton => "Pad";
+        //public string TextEnqueueModulePadButton => "Pad";
 
-        public string TextDequeueModuleButton {
+        public string TextClearModulesButton {
             get {
-                switch (SelectionMode) {
-                    case SelectionModes.Plan:
-                        return "Clear(P)";
-
-                    case SelectionModes.Task:
-                        return "Clear(T)";
-
+                switch (ExecutionSelectionMode) {
+                    case ExecutionSelectionModes.Module:
+                        return "Delete";
                     default:
                         return "Clear";
+                }
+            }
+        }
+
+        public string TextExecutionSelectionMode {
+            get {
+                switch (ExecutionSelectionMode) {
+                    case ExecutionSelectionModes.Plan:
+                        return "Plan =>";
+                    case ExecutionSelectionModes.Task:
+                        return "Task =>";
+                    case ExecutionSelectionModes.Module:
+                        return "";
+                    default:
+                        return "";
                 }
             }
         }

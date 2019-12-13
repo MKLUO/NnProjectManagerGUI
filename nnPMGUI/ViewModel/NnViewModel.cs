@@ -1,18 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
-//using NnManager;
 using System.Collections.ObjectModel;
 
 using NNMCore;
 using NNMCore.View;
-using System.Runtime.CompilerServices;
-using System.ComponentModel;
 
-//#nullable enable
 
 namespace NnManagerGUI.ViewModel {
-    //partial class ProjectViewModel : Notifier, INotifyPropertyChanged
     partial class ProjectViewModel : View.Utils.Notifier {
 
         INNManager Manager { get; }
@@ -27,46 +21,12 @@ namespace NnManagerGUI.ViewModel {
         protected override Dictionary<string, List<string>> Derivatives =>
             new Dictionary<string, List<string>>
             {
-                #region Model Events
-
-                //{"Log", new List<string>{
-                //    "TextLog"}},
-
-                //{"SchedulerActiveFlag", new List<string>{
-                //    "TextSchedularStatus"}},
-
-                //{"Model - AddTemplate", new List<string>{
-                //    "CollectionTemplate"}},
-
-                //{"Model - DeleteTemplate", new List<string>{
-                //    "CollectionTemplate"}},
-
-                //{"Model - AddPlan", new List<string>{
-                //    "CollectionPlan"}},
-
-                //{"Model - DeletePlan", new List<string>{
-                //    "CollectionPlan"}},
-
-
-                //{"Plan - AddTask", new List<string>{
-                //    "CollectionTask"} },
-
-                //{"Plan - DeleteTask", new List<string>{
-                //    "CollectionTask"}},
-
-                #endregion
-
-                // View Events
-
                 {nameof(SelectedPlan), new List<string>{
                     nameof(CollectionTask)} },
 
                 {nameof(SelectedTask), new List<string>{
                     nameof(CollectionModulePallete),
                     nameof(CollectionModuleVM)}},
-
-                //{"SelectedModulePallete", new List<string>{
-                //    "Module"}},
 
                 {nameof(SelectedModuleVM), new List<string>{
                     nameof(CollectionModuleVM)}},
@@ -78,9 +38,10 @@ namespace NnManagerGUI.ViewModel {
         protected override List<string> Minors => new List<string>{
             nameof(TextSchedulerStatus),
             nameof(TextEnqueueModuleButton),
-            nameof(TextDequeueModuleButton)};
+            nameof(TextExecutionSelectionMode),
+            nameof(TextClearModulesButton)
+        };
 
-        public bool IsBusy() => Manager.IsBusy();
 
         //bool OnWarnAndDecide(Util.WarnAndDecideEventArgs e) {
         //    return UtilGUI.WarnAndDecide(e.Text);
@@ -90,6 +51,10 @@ namespace NnManagerGUI.ViewModel {
         //    UtilGUI.Error(e.Text);
         //}
 
+
+    }
+
+    partial class ProjectViewModel {
         static void Update<T>(
             ObservableCollection<T> collection,
             IEnumerable<T> newDatas) where T : class, IUpdate {
@@ -106,7 +71,7 @@ namespace NnManagerGUI.ViewModel {
                 newDatas.Except(collection).ToList();
             foreach (var data in adding)
                 collection.Add(data);
-            
+
             // 3. Update
             foreach (var data in collection)
                 data.Update();

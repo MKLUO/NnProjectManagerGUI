@@ -56,13 +56,13 @@
         <Button Command="{Binding CommandEnqueueModule}"
                 Content="{Binding TextEnqueueModuleButton}" HorizontalAlignment="Left" Margin="572,225,0,0" VerticalAlignment="Top" Width="88" Height="25"/>
         <Button Command="{Binding CommandClearModules}"
-                Content="X" HorizontalAlignment="Left" Margin="835,525,0,0" VerticalAlignment="Top" Width="30" Height="25"/>
+                Content="{Binding TextClearModulesButton}" HorizontalAlignment="Left" Margin="805,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
         <Button Command="{Binding CommandToggleQueue}"
                 Content="{Binding TextSchedulerStatus}" HorizontalAlignment="Left" Margin="457,525,0,0" VerticalAlignment="Top" Width="110" Height="25"/>
         <Button Command="{Binding CommandLaunch}"
-                Content="Launch" HorizontalAlignment="Left" Margin="705,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
+                Content="Launch" HorizontalAlignment="Left" Margin="675,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
         <Button Command="{Binding CommandReset}"
-            Content="Reset" HorizontalAlignment="Left" Margin="770,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
+            Content="Reset" HorizontalAlignment="Left" Margin="740,525,0,0" VerticalAlignment="Top" Width="60" Height="25"/>
         <Button Command="{Binding CommandGenerateSomeReport}" 
             HorizontalAlignment="Left" Margin="230,427,0,0" VerticalAlignment="Top" Width="80" Height="25" Grid.Column="1">
             <TextBlock><Run Text="Report"/></TextBlock>
@@ -271,12 +271,11 @@
             </DataGrid.Columns>
         </DataGrid>
         <DataGrid ItemsSource="{Binding ModuleParamsForm.Texts, Mode=OneWay}"
-            CellEditEnding="Module_CellEditEnding"    
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True"
             CanUserReorderColumns="False"
-            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="225" Margin="665,25,0,0" VerticalAlignment="Top" Width="200">
+            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="137" Margin="665,25,0,0" VerticalAlignment="Top" Width="200">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
@@ -298,6 +297,42 @@
                     Width="0.9*" Header="Value"/>
             </DataGrid.Columns>
         </DataGrid>
+        <DataGrid ItemsSource="{Binding ModuleParamsForm.Enums, Mode=OneWay}"                
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            CanUserResizeColumns="True"
+            CanUserReorderColumns="False"
+            AutoGenerateColumns="False" HorizontalAlignment="Left" Height="83" Margin="665,167,0,0" VerticalAlignment="Top" Width="200">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" Width="0.4*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Key}" 
+                                ToolTip="{Binding Key}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Default" Width="0.5*" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DefaultValue}" 
+                                ToolTip="{Binding DefaultValue}" TextTrimming="CharacterEllipsis"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="0.9*" Header="Value">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DefaultValue, Converter={cvt:EnumToCollectionConverter}, Mode=OneWay}"
+                                      SelectedValuePath="Value"
+                                      DisplayMemberPath="Description"
+                                      SelectedValue="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <CheckBox IsChecked="{Binding ParamDiffOnly, Mode=TwoWay}" Content="Diff. only" HorizontalAlignment="Left" Margin="129,531,0,0" VerticalAlignment="Top"/>
 
@@ -305,5 +340,6 @@
             HorizontalAlignment="Left" Margin="396,225,0,0" VerticalAlignment="Top" Width="116" Height="25">
             <TextBlock>MAGIC!</TextBlock>
         </Button>
+        <Label Content="{Binding TextExecutionSelectionMode}" HorizontalAlignment="Left" Margin="620,525,0,0" VerticalAlignment="Top" Width="60"/>
     </Grid>
 </UserControl>

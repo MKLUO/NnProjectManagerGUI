@@ -24,17 +24,6 @@ namespace NnManagerGUI.View {
 
         public class InvalideViewModelException : System.Exception { }
 
-        private void Params_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
-            if (sender is DataGrid grid)
-                if (grid.SelectedItem is INamedForm<string> newForm)
-                    VM.UpdateTemplateParamsForm(newForm);
-        }
-
-        private void Module_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
-            if (sender is DataGrid grid)
-                if (grid.SelectedItem is INamedForm<string> newForm)
-                    VM.UpdateModuleParamsForm(newForm);
-        }
 
         private void Templates_GotFocus(object sender, System.Windows.RoutedEventArgs e) =>
             VM.SelectionMode = SelectionModes.Template;
@@ -59,6 +48,8 @@ namespace NnManagerGUI.View {
             VM.ExecutionSelectionMode = ExecutionSelectionModes.Module;
         }
 
+
+
         private void Tasks_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             VM.SelectedTasks = 
                 (sender as DataGrid)?.SelectedItems.Cast<INNTaskEntry>()
@@ -71,6 +62,26 @@ namespace NnManagerGUI.View {
             VM.SelectedModuleVMs =
                 (sender as DataGrid)?.SelectedItems.Cast<ViewModel.INNModuleEntryVM>()
                 .ToList() ?? new List<ViewModel.INNModuleEntryVM> { };
+        }
+
+
+
+        private void Params_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
+            if (sender is DataGrid grid)
+                if (grid.SelectedItem is INamedForm<string> newForm)
+                    VM.UpdateTemplateParamsForm(newForm);
+        }
+
+        private void Module_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
+            if (sender is DataGrid grid)
+                if (grid.SelectedItem is INamedForm<string> newForm)
+                    VM.UpdateModuleParamsForm(newForm);
+        }
+
+        private void ModuleComboBox_DropDownClosed(object sender, System.EventArgs e) {
+            if (sender is ComboBox cBox)
+                if (cBox.SelectedItem is INamedForm<string> newForm)
+                    VM.UpdateModuleParamsForm(newForm);
         }
     }
 }
