@@ -37,6 +37,15 @@
     <PackageReference Include="Windows7APICodePack-Shell" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="core.common.view">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.common.view.dll</HintPath>
+    </Reference>
+    <Reference Include="core.nextnano.view">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.nextnano.view.dll</HintPath>
+    </Reference>
+    <Reference Include="core.service">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.service.dll</HintPath>
+    </Reference>
     <Reference Include="nnmcore">
       <HintPath>..\..\..\NNM2\NNM2core\core\bin\Debug\netstandard2.1\nnmcore.dll</HintPath>
     </Reference>    

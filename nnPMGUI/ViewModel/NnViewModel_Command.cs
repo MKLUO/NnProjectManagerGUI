@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using NNMCore;
 
 namespace NnManagerGUI.ViewModel {
+
+    using NNMCore.View;
+    using NNMCore.NN.View;
 
     partial class ProjectViewModel {
         #region common_logic
@@ -12,6 +14,11 @@ namespace NnManagerGUI.ViewModel {
         public bool IsBusy() => Manager.IsBusy();
         bool IsProjectLoaded() => Manager.IsProjectLoaded();
         bool IsSchedulerOff() => Manager.IsProjectLoaded() ? Manager.SchedulerStatus == SchedulerStatus.IDLE : true;
+
+        void Reset() {
+            ResetSelections();
+            ResetCollections();
+        }
 
         void ResetSelections() {
             SelectionMode = SelectionModes.None;
@@ -28,6 +35,13 @@ namespace NnManagerGUI.ViewModel {
             SelectedTasks = new List<INNTaskEntry> { };
             //SelectedModules = new List<INNModuleEntry> { };
             SelectedModuleVMs = new List<INNModuleEntryVM> { };
+        }
+        void ResetCollections() {
+            OnPropertyChanged(nameof(CollectionTemplate));
+            OnPropertyChanged(nameof(CollectionPlan));
+            OnPropertyChanged(nameof(CollectionTask));
+            OnPropertyChanged(nameof(CollectionModulePallete));
+            OnPropertyChanged(nameof(CollectionModuleVM));
         }
 
         void ResetControls() {
@@ -57,36 +71,30 @@ namespace NnManagerGUI.ViewModel {
                 return;
             }
 
-            ResetSelections();
+            Reset();
         }
 
-        //public ICommand CommandLoadProject =>
-        //    new RelayCommand(LoadProjectExecute, () => true);
-        //void LoadProjectExecute() {
-        //    string? path = UtilGUI.OpenFileDialogToGetFolder();
-        //    if (path == null) return;
+        public ICommand CommandLoadProject =>
+            new RelayCommand(LoadProjectExecute, () => true);
+        void LoadProjectExecute() {
+            string? path = UtilGUI.OpenFileDialogToGetFolder();
+            if (path == null) return;
 
-        //    if (projectData?.IsBusy ?? false) {
-        //        if (UtilGUI.WarnAndDecide("Current project is busy.\nTerminate and continue?"))
-        //            projectData?.Terminate();
-        //        else
-        //            return;
-        //    }
+            if (Manager.IsBusy()) {
+                if (UtilGUI.WarnAndDecide("Current project is busy.\nTerminate and continue?"))
+                    Manager.Reset();
+                else return;
+            }
 
-        //    projectData = NnProjectData.Load(path);
-        //    if (projectData == null) {
-        //        UtilGUI.Error("Error!");
-        //        return;
-        //    }
+            Manager.LoadProject(path);
 
-        //    projectData.PropertyChanged += OnComponentPropertyChanged;
+            if (!Manager.IsProjectLoaded()) {
+                UtilGUI.Error("Project creation failed!");
+                return;
+            }
 
-        //    ResetSelectionAndCollections();
-        //    OnPropertyChanged("");
-        //}
-
-        //public ICommand CommandSaveProject =>
-        //    new RelayCommand(() => projectData?.Save(), IsProjectLoaded);
+            Reset();
+        }
 
         public ICommand CommandAddTemplate =>
             new RelayCommand(AddTemplateExecute, Manager.IsProjectLoaded);
@@ -224,7 +232,7 @@ namespace NnManagerGUI.ViewModel {
                 ExecutionSelectionMode = ExecutionSelectionModes.Module;
                 SelectedModule = newModule;
             };
-        
+
 
         public ICommand CommandToggleQueue =>
             new RelayCommand(
@@ -365,7 +373,7 @@ namespace NnManagerGUI.ViewModel {
                     SelectedTask = task;
                     SelectedModulePallete = moduleInfo[0];
                     SelectedModule = module;
-                    //SelectedModuleVM = ToModuleVM(module);
+                    SelectedModuleVM = ToModuleVM(module);
                 }, () => true);
     }
 }

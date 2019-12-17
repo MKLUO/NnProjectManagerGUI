@@ -1,11 +1,14 @@
-﻿using NNMCore;
-using NNMCore.View;
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using ProjectViewModel = NnManagerGUI.ViewModel.ProjectViewModel;
 
 namespace NnManagerGUI.View {
+
+    using NNMCore.View;
+    using NNMCore.NN.View;
+
     //using Variable = NnManager.NnProjectData.Variable;
     using SelectionModes = ProjectViewModel.SelectionModes;
     using ModuleSelectionModes = ProjectViewModel.ModuleSelectionModes;
@@ -53,7 +56,7 @@ namespace NnManagerGUI.View {
         private void Tasks_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             VM.SelectedTasks = 
                 (sender as DataGrid)?.SelectedItems.Cast<INNTaskEntry>()
-                .ToList() ?? new List<INNTaskEntry> { };
+                .ToList() ?? new List<INNTaskEntry> { }; 
         }
         private void Modules_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             //VM.SelectedModules =

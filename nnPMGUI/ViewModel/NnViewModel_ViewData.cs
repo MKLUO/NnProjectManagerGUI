@@ -2,12 +2,11 @@
 
 using System.Collections.ObjectModel;
 
-using NNMCore.View;
-using NNMCore;
-using System.ComponentModel;
 
 namespace NnManagerGUI.ViewModel {
-    //using ModuleType = NNMCore.NNModuleType;
+
+    using NNMCore.View;
+    using NNMCore.NN.View;
 
     partial class ProjectViewModel {
 
@@ -188,17 +187,6 @@ namespace NnManagerGUI.ViewModel {
                 return collectionModulePallete;
             }
         }
-
-        //ObservableCollection<INNModuleEntry> collectionModule = Empty<INNModuleEntry>();
-        //public ObservableCollection<INNModuleEntry> CollectionModule {
-        //    get {
-        //        if (!IsProjectLoaded() || SelectedTask == null)
-        //            collectionModule = Empty<INNModuleEntry>();
-        //        else
-        //            Update(ref collectionModule, Manager.GetModules(SelectedTask));
-        //        return collectionModule;
-        //    }
-        //}
         
         #endregion
 

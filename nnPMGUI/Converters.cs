@@ -9,6 +9,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace NnManagerGUI.Converter {
+    using NNMCore.View;
     public class ModuleStatusToBrushConverter : MarkupExtension, IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (!(value is ModuleStatus status))

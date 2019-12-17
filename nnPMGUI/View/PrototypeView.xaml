@@ -14,7 +14,7 @@
         <Menu Height="20" Margin="0,0,0,540" Grid.ColumnSpan="2">
             <MenuItem Header="Project">
                 <MenuItem Command="{Binding CommandNewProject}" Header="New..."/>
-                <!--<MenuItem Command="{Binding CommandLoadProject}" Header="Load..."/>-->
+                <MenuItem Command="{Binding CommandLoadProject}" Header="Load..."/>
             </MenuItem>
             <MenuItem Header="About">
                 <MenuItem Header="About NnManager..."/>

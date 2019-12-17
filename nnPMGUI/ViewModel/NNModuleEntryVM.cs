@@ -6,6 +6,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace NnManagerGUI.ViewModel {
+    
+    using NNMCore.View;
+    using NNMCore.NN.View;
+
     interface INNModuleEntryVM : INNModuleEntry, IUpdate {
         INNModuleEntry Entry { get; }
         bool IsDep { get; }

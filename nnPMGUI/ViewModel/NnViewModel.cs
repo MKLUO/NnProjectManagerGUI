@@ -2,11 +2,15 @@
 using System.Linq;
 using System.Collections.ObjectModel;
 
-using NNMCore;
-using NNMCore.View;
+using NNMCore.Service;
+using NNMCore.NN;
 
 
 namespace NnManagerGUI.ViewModel {
+
+    using NNMCore.View;
+    using NNMCore.NN.View;
+
     partial class ProjectViewModel : View.Utils.Notifier {
 
         INNManager Manager { get; }
