@@ -19,6 +19,7 @@ namespace NnManagerGUI.ViewModel {
     class NNModuleEntryVM : View.Utils.Notifier, INNModuleEntryVM {
         public INNModuleEntry Entry { get; }
         Func<bool> IsDepEvaluation { get; }
+        public bool Dep { get; set; } = false;
         public NNModuleEntryVM(
             INNModuleEntry entry,
             Func<bool> isDepEvaluation) {
@@ -33,7 +34,6 @@ namespace NnManagerGUI.ViewModel {
         public string StatusText => Entry.StatusText;
         public string Summary => Entry.Summary;
         public bool IsDep => IsDepEvaluation();
-        public bool Dep { get; set; } = false;
 
         public override bool Equals(object? obj) {
             if (!(obj is NNModuleEntryVM anotherEntry)) return false;

@@ -12,9 +12,21 @@
     <Grid Background="White">
 
         <Menu Height="20" Margin="0,0,0,540" Grid.ColumnSpan="2">
-            <MenuItem Header="Project">
+            <MenuItem Header="File">
                 <MenuItem Command="{Binding CommandNewProject}" Header="New..."/>
                 <MenuItem Command="{Binding CommandLoadProject}" Header="Load..."/>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Restore deleted...">
+                    <MenuItem Header="Templates"
+                              Command="{Binding CommandRestoreTemplates}"/>
+                    <MenuItem Header="Plans"
+                              Command="{Binding CommandRestorePlans}"/>
+                    <MenuItem Header="Tasks (of selected plan)"
+                              Command="{Binding CommandRestoreTasks}"/>
+                    <MenuItem Header="Modules (of selected task)"
+                              Command="{Binding CommandRestoreModules}"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="About">
                 <MenuItem Header="About NnManager..."/>
@@ -209,7 +221,7 @@
                                     Width="0.9*" Header="Value (Same)"/>
             </DataGrid.Columns>
         </DataGrid>-->
-        <DataGrid ItemsSource="{Binding TemplateParamsForm.Texts, Mode=OneWay}"
+        <DataGrid ItemsSource="{Binding TemplateParamsFormVM.Texts, Mode=OneWay}"
                   CellEditEnding="Params_CellEditEnding"    
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
                   ScrollViewer.VerticalScrollBarVisibility="Disabled"
@@ -270,7 +282,7 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid ItemsSource="{Binding ModuleParamsForm.Texts, Mode=OneWay}"
+        <DataGrid ItemsSource="{Binding ModuleParamsFormVM.Texts, Mode=OneWay}"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True"
@@ -297,7 +309,7 @@
                     Width="0.9*" Header="Value"/>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid ItemsSource="{Binding ModuleParamsForm.Enums, Mode=OneWay}"                
+        <DataGrid ItemsSource="{Binding ModuleParamsFormVM.Enums, Mode=OneWay}"                
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"                  
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True"

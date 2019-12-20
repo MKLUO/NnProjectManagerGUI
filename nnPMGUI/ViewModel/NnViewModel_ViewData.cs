@@ -137,11 +137,11 @@ namespace NnManagerGUI.ViewModel {
         //}
         //public IList<INNModuleEntry> SelectedModules = new List<INNModuleEntry> { };
 
-    #endregion
+        #endregion
 
-    #region Collection
+        #region Collection
 
-    static ObservableCollection<TIEntry> Empty<TIEntry>() => new ObservableCollection<TIEntry>();
+        static ObservableCollection<TIEntry> Empty<TIEntry>() => new ObservableCollection<TIEntry>();
 
         ObservableCollection<INNTemplateEntry> collectionTemplate = Empty<INNTemplateEntry>();
         public ObservableCollection<INNTemplateEntry> CollectionTemplate {
@@ -187,17 +187,19 @@ namespace NnManagerGUI.ViewModel {
                 return collectionModulePallete;
             }
         }
-        
+
         #endregion
 
         #region ParamsForm
 
         IParamsForm? templateParamsForm = null;
-        public IParamsForm? TemplateParamsForm {
+        IParamsForm? TemplateParamsForm {
             // TODO:
             get => ParamDiffOnly ? templateParamsForm : templateParamsForm;
             set => SetField(ref templateParamsForm, value);
         }
+        public ParamsFormVM? TemplateParamsFormVM =>
+            TemplateParamsForm != null ? new ParamsFormVM(TemplateParamsForm) : null;
         public void NewTemplateParamsForm() {
             switch (SelectionMode) {
                 case SelectionModes.Template:
@@ -218,7 +220,7 @@ namespace NnManagerGUI.ViewModel {
             }
             TemplateParamsForm = null;
         }
-        public void UpdateTemplateParamsForm<T>(INamedForm<T> newParamForm) {
+        public void UpdateTemplateParamsForm<T>(NamedForm<T> newParamForm) {
             if (TemplateParamsForm == null)
                 return;
 
@@ -237,10 +239,12 @@ namespace NnManagerGUI.ViewModel {
 
         // TODO: Multiple Task logic
         IParamsForm? moduleParamsForm = null;
-        public IParamsForm? ModuleParamsForm {
+        IParamsForm? ModuleParamsForm {
             get => moduleParamsForm;
-            private set => SetField(ref moduleParamsForm, value);
+            set => SetField(ref moduleParamsForm, value);
         }
+        public ParamsFormVM? ModuleParamsFormVM =>
+            ModuleParamsForm != null ? new ParamsFormVM(ModuleParamsForm) : null;
         public void NewModuleParamsForm() {
             switch (ModuleSelectionMode) {
                 case ModuleSelectionModes.ModulePalette:
@@ -257,7 +261,7 @@ namespace NnManagerGUI.ViewModel {
             }
             ModuleParamsForm = null;
         }
-        public void UpdateModuleParamsForm<T>(INamedForm<T> newParamForm) {
+        public void UpdateModuleParamsForm<T>(NamedForm<T> newParamForm) {
             if (ModuleParamsForm == null)
                 return;
 
@@ -281,7 +285,7 @@ namespace NnManagerGUI.ViewModel {
                         return "Scheduler:  ON";
                     case SchedulerStatus.Stopping:
                         return "Scheduler: OFF";
-                        //return " Stopping...  ";
+                    //return " Stopping...  ";
                     default:
                         return "Scheduler";
                 }
@@ -332,11 +336,6 @@ namespace NnManagerGUI.ViewModel {
                 }
             }
         }
-
-        // TODO: Logging
-
-        //public string TextLog =>
-        //    projectData?.Log ?? "";
 
         #endregion
 

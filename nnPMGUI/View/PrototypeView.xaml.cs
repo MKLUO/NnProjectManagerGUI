@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
-using ProjectViewModel = NnManagerGUI.ViewModel.ProjectViewModel;
+
+using NnManagerGUI.ViewModel;
+using NNMCore.NN.View;
 
 namespace NnManagerGUI.View {
 
-    using NNMCore.View;
-    using NNMCore.NN.View;
 
     //using Variable = NnManager.NnProjectData.Variable;
     using SelectionModes = ProjectViewModel.SelectionModes;
@@ -71,19 +71,19 @@ namespace NnManagerGUI.View {
 
         private void Params_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
             if (sender is DataGrid grid)
-                if (grid.SelectedItem is INamedForm<string> newForm)
+                if (grid.SelectedItem is NamedForm<string> newForm)
                     VM.UpdateTemplateParamsForm(newForm);
         }
 
         private void Module_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
             if (sender is DataGrid grid)
-                if (grid.SelectedItem is INamedForm<string> newForm)
+                if (grid.SelectedItem is NamedForm<string> newForm)
                     VM.UpdateModuleParamsForm(newForm);
         }
 
         private void ModuleComboBox_DropDownClosed(object sender, System.EventArgs e) {
             if (sender is ComboBox cBox)
-                if (cBox.SelectedItem is INamedForm<string> newForm)
+                if (cBox.SelectedItem is NamedForm<string> newForm)
                     VM.UpdateModuleParamsForm(newForm);
         }
     }

@@ -42,18 +42,27 @@
     <PackageReference Include="Windows7APICodePack-Shell" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="core.common.view">
-      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.common.view.dll</HintPath>
+    <Reference Include="common">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\common.dll</HintPath>
     </Reference>
-    <Reference Include="core.nextnano.view">
-      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.nextnano.view.dll</HintPath>
+    <Reference Include="common.view">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\common.view.dll</HintPath>
     </Reference>
-    <Reference Include="core.service">
-      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\core.service.dll</HintPath>
+    <Reference Include="mathematics">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\mathematics.dll</HintPath>
     </Reference>
-    <Reference Include="nnmcore">
-      <HintPath>..\..\..\NNM2\NNM2core\core\bin\Debug\netstandard2.1\nnmcore.dll</HintPath>
-    </Reference>    
+    <Reference Include="nextnano">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\nextnano.dll</HintPath>
+    </Reference>
+    <Reference Include="nextnano.view">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\nextnano.view.dll</HintPath>
+    </Reference>
+    <Reference Include="nnProjectManager">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\nnProjectManager.dll</HintPath>
+    </Reference>
+    <Reference Include="service">
+      <HintPath>..\..\..\NNM2\NNM2core\core\service\bin\Debug\netstandard2.1\service.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon.ico" />

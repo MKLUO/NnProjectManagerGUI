@@ -350,6 +350,34 @@ namespace NnManagerGUI.ViewModel {
             SelectedModule = null;
         }
 
+        public ICommand CommandRestoreTemplates => new RelayCommand(
+                () => { 
+                    Manager.RestoreTemplates();
+                    OnPropertyChanged(() => CollectionTemplate);
+                },
+                () => IsProjectLoaded());
+        public ICommand CommandRestorePlans => new RelayCommand(
+                () => { 
+                    Manager.RestorePlans();
+                    OnPropertyChanged(() => CollectionPlan);
+                },
+                () => IsProjectLoaded());
+        public ICommand CommandRestoreTasks => new RelayCommand(
+                () => {
+                    if (SelectedPlan == null) return;
+                    Manager.RestoreTasks(SelectedPlan);
+                    OnPropertyChanged(() => CollectionTask);
+                },
+                () => IsProjectLoaded() && (SelectedPlan != null));
+        public ICommand CommandRestoreModules => new RelayCommand(
+                () => {
+                    if (SelectedTask == null) return;
+                    Manager.RestoreModules(SelectedTask);
+                    OnPropertyChanged(() => CollectionModuleVM);
+                },
+                () => IsProjectLoaded() && (SelectedTask != null));
+
+
         public ICommand CommandMAGIC =>
             new RelayCommand(
                 () => {

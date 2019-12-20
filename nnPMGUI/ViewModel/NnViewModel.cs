@@ -3,13 +3,11 @@ using System.Linq;
 using System.Collections.ObjectModel;
 
 using NNMCore.Service;
-using NNMCore.NN;
-
+using NNMCore.View;
+using NNMCore.NN.View;
 
 namespace NnManagerGUI.ViewModel {
 
-    using NNMCore.View;
-    using NNMCore.NN.View;
 
     partial class ProjectViewModel : View.Utils.Notifier {
 
@@ -36,7 +34,13 @@ namespace NnManagerGUI.ViewModel {
                     nameof(CollectionModuleVM)}},
 
                 {nameof(ParamDiffOnly), new List<string>{
-                    nameof(TemplateParamsForm)}}
+                    nameof(TemplateParamsForm)}},
+
+                {nameof(TemplateParamsForm), new List<string>{
+                    nameof(TemplateParamsFormVM)}},
+
+                {nameof(ModuleParamsForm), new List<string>{
+                    nameof(ModuleParamsFormVM)}}
             };
 
         protected override List<string> Minors => new List<string>{
