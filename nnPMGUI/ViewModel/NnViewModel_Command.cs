@@ -388,7 +388,7 @@ namespace NnManagerGUI.ViewModel {
                     var form = Manager.NewFormFromTemplate(template);
                     var plan = Manager.AddPlan(template, "PLAN", form);
                     var task = Manager.AddTask(plan, form);
-                    var moduleInfo = Manager.GetModuleInfos(task);
+                    var moduleInfo = Manager.GetModuleInfos();
                     var moduleForm = Manager.NewModuleFormFromTask(task, moduleInfo[0]);
                     var module = Manager.AddModule(task, moduleForm);
 

@@ -179,10 +179,10 @@ namespace NnManagerGUI.ViewModel {
         ObservableCollection<INNModuleInfoEntry> collectionModulePallete = Empty<INNModuleInfoEntry>();
         public ObservableCollection<INNModuleInfoEntry> CollectionModulePallete {
             get {
-                if (!IsProjectLoaded() || SelectedTask == null)
+                if (!IsProjectLoaded())
                     collectionModulePallete = Empty<INNModuleInfoEntry>();
                 else
-                    Update(ref collectionModulePallete, Manager.GetModuleInfos(SelectedTask));
+                    Update(ref collectionModulePallete, Manager.GetModuleInfos());
                 // TODO: Stay at same module?
                 return collectionModulePallete;
             }
@@ -255,7 +255,7 @@ namespace NnManagerGUI.ViewModel {
 
                 case ModuleSelectionModes.Module:
                     if (SelectedModule == null || SelectedTask == null) break;
-                    ModuleParamsForm = Manager.NewModuleForm(
+                    ModuleParamsForm = Manager.NewModuleFormFromModule(
                             SelectedModule, SelectedTask);
                     return;
             }
