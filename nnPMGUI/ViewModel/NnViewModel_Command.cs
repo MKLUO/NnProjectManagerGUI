@@ -368,6 +368,40 @@ namespace NnManagerGUI.ViewModel
         }
 
         // FIXME: HACK!!!!
+        public ICommand CommandMagic =>
+            new RelayCommand(
+                Magic,
+                () => IsSchedulerOff() && IsProjectLoaded() && (selectedTask != null));
+        void Magic() {
+            SelectedTask?.QueueModule(
+                SelectedTask?.GetModuleForm(ModuleType.NnMain));
+            SelectedTask?.QueueModule(
+                SelectedTask?.GetModuleForm(ModuleType.NnMainNonSC));
+            var mainReport = SelectedTask?.GetModuleForm(ModuleType.NnDQDReport);
+            foreach (NnProjectData.Variable oldVar in mainReport.Options)
+                if (oldVar.Name == "non_SC") {
+                    oldVar.Value = "no";
+                    break;
+                }
+            SelectedTask?.QueueModule(mainReport);
+            SelectedTask?.QueueModule(
+                SelectedTask?.GetModuleForm(ModuleType.NnDQDReport));
+
+            NnProjectData.NnModuleForm DqdjWithOrder(int order) {
+                var orderdqdJ = SelectedTask?.GetModuleForm(ModuleType.NnDQDJ);
+                foreach (NnProjectData.Variable oldVar in orderdqdJ.Options)
+                    if (oldVar.Name == "order") {
+                        oldVar.Value = order.ToString();
+                        break;
+                    }
+                return orderdqdJ;
+            }
+            SelectedTask?.QueueModule(DqdjWithOrder(4));
+            SelectedTask?.QueueModule(DqdjWithOrder(5));
+            SelectedTask?.QueueModule(DqdjWithOrder(6));
+        }
+
+        // FIXME: HACK!!!!
         public ICommand CommandGenerateSomeReport =>
             new RelayCommand(
                 GenerateSomeReport,

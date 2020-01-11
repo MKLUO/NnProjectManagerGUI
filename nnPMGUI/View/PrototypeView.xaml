@@ -306,7 +306,11 @@
                     Width="0.9*" Header="Value"/>
             </DataGrid.Columns>
         </DataGrid>
-        
+        <Button Command="{Binding CommandMagic}" 
+            HorizontalAlignment="Left" Margin="777,396,0,0" VerticalAlignment="Top" Width="80" Height="25">
+            <TextBlock><Run Text="Magic"/></TextBlock>
+        </Button>
+
 
     </Grid>
 </UserControl>
