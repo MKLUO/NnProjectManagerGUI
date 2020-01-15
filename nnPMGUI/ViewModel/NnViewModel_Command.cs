@@ -373,32 +373,36 @@ namespace NnManagerGUI.ViewModel
                 Magic,
                 () => IsSchedulerOff() && IsProjectLoaded() && (selectedTask != null));
         void Magic() {
-            SelectedTask?.QueueModule(
-                SelectedTask?.GetModuleForm(ModuleType.NnMain));
-            SelectedTask?.QueueModule(
-                SelectedTask?.GetModuleForm(ModuleType.NnMainNonSC));
-            var mainReport = SelectedTask?.GetModuleForm(ModuleType.NnDQDReport);
-            foreach (NnProjectData.Variable oldVar in mainReport.Options)
-                if (oldVar.Name == "non_SC") {
-                    oldVar.Value = "no";
-                    break;
-                }
-            SelectedTask?.QueueModule(mainReport);
-            SelectedTask?.QueueModule(
-                SelectedTask?.GetModuleForm(ModuleType.NnDQDReport));
+            if (SelectedTasks == null) return;
+            foreach (var task in SelectedTasks) {
 
-            NnProjectData.NnModuleForm DqdjWithOrder(int order) {
-                var orderdqdJ = SelectedTask?.GetModuleForm(ModuleType.NnDQDJ);
-                foreach (NnProjectData.Variable oldVar in orderdqdJ.Options)
-                    if (oldVar.Name == "order") {
-                        oldVar.Value = order.ToString();
+                task.QueueModule(
+                task.GetModuleForm(ModuleType.NnMain));
+                task.QueueModule(
+                    task.GetModuleForm(ModuleType.NnMainNonSC));
+                var mainReport = task.GetModuleForm(ModuleType.NnDQDReport);
+                foreach (NnProjectData.Variable oldVar in mainReport.Options)
+                    if (oldVar.Name == "non_SC") {
+                        oldVar.Value = "no";
                         break;
                     }
-                return orderdqdJ;
+                task.QueueModule(mainReport);
+                task.QueueModule(
+                    task.GetModuleForm(ModuleType.NnDQDReport));
+
+                NnProjectData.NnModuleForm DqdjWithOrder(int order) {
+                    var orderdqdJ = task.GetModuleForm(ModuleType.NnDQDJ);
+                    foreach (NnProjectData.Variable oldVar in orderdqdJ.Options)
+                        if (oldVar.Name == "order") {
+                            oldVar.Value = order.ToString();
+                            break;
+                        }
+                    return orderdqdJ;
+                }
+                task.QueueModule(DqdjWithOrder(4));
+                task.QueueModule(DqdjWithOrder(5));
+                task.QueueModule(DqdjWithOrder(6));
             }
-            SelectedTask?.QueueModule(DqdjWithOrder(4));
-            SelectedTask?.QueueModule(DqdjWithOrder(5));
-            SelectedTask?.QueueModule(DqdjWithOrder(6));
         }
 
         // FIXME: HACK!!!!
