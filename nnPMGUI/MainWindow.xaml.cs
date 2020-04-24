@@ -30,5 +30,10 @@ namespace NnManagerGUI
                 if (!ViewModel.UtilGUI.WarnAndDecide("Some tasks are still running. Exit?"))
                     e.Cancel = true;
         }
+
+        private void PrototypeView_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

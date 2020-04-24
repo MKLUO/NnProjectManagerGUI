@@ -60,7 +60,7 @@
       <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="nnProjectManager">
-      <HintPath>..\..\..\nnProjectManager_sln\nnProjectManager\bin\Debug\netstandard2.0\nnProjectManager.dll</HintPath>
+      <HintPath>..\..\NnProjectManager\bin\Debug\netstandard2.0\nnProjectManager.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

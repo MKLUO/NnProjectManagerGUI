@@ -27,7 +27,7 @@
         <Label Content="Parameters (?)" 
                ToolTip="Select a plan or task to load their signature."
                HorizontalAlignment="Left" Margin="10,255,0,0" VerticalAlignment="Top"/>
-        <Label Content="Plans" HorizontalAlignment="Left" 
+        <Label Content="計畫&#xD;&#xA;" HorizontalAlignment="Left" 
                Margin="215,25,0,0" VerticalAlignment="Top"/>
         <Label Content="Modules" HorizontalAlignment="Left" 
                Margin="460,25,0,0" VerticalAlignment="Top"/>
